@@ -9,7 +9,8 @@ const http = require('http');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const DATA_DIR = process.env.RENDER_DISK_PATH || __dirname;
+// __dirname is read-only on Render after build, so fall back to /tmp
+const DATA_DIR = process.env.RENDER_DISK_PATH || (process.env.NODE_ENV === 'production' ? '/tmp' : __dirname);
 const SITES_FILE = path.join(DATA_DIR, 'sites.json');
 
 // ── Middleware ────────────────────────────────────────────────────────────────
@@ -24,14 +25,14 @@ function loadSites() {
       { id: 2, name: 'Khan Academy', url: 'https://www.khanacademy.org', icon: '🎓' },
       { id: 3, name: 'GitHub', url: 'https://github.com', icon: '🐙' },
     ];
-    fs.writeFileSync(SITES_FILE, JSON.stringify(defaults, null, 2));
+    try { fs.writeFileSync(SITES_FILE, JSON.stringify(defaults, null, 2)); } catch(e) { console.error('Could not write sites.json:', e.message); }
     return defaults;
   }
   return JSON.parse(fs.readFileSync(SITES_FILE, 'utf8'));
 }
 
 function saveSites(sites) {
-  fs.writeFileSync(SITES_FILE, JSON.stringify(sites, null, 2));
+  try { fs.writeFileSync(SITES_FILE, JSON.stringify(sites, null, 2)); } catch(e) { console.error('Could not save sites.json:', e.message); }
 }
 
 // ── Sites API ─────────────────────────────────────────────────────────────────
