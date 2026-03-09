@@ -1,532 +1,473 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="matrix">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portal</title>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenGate</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:       #080c10;
-      --surface:  #0e1419;
-      --border:   #1e2d3d;
-      --accent:   #39ff14;
-      --accent2:  #00d4ff;
-      --danger:   #ff3b5c;
-      --text:     #c8d8e8;
-      --muted:    #4a6070;
-      --glow:     0 0 20px #39ff1430;
-    }
-
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
-      overflow-x: hidden;
-    }
-
-    /* Animated grid bg */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 40px 40px;
-      opacity: 0.35;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .noise {
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.6;
-    }
-
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 24px 80px;
-    }
-
-    /* ── Header ── */
-    header {
-      padding: 48px 0 40px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 24px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 48px;
-    }
-
-    .logo {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .logo-tag {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--accent);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-    }
-
-    .logo-title {
-      font-size: 42px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: #fff;
-      line-height: 1;
-    }
-
-    .logo-title span {
-      color: var(--accent);
-    }
-
-    .status-dot {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    /* ── Add form ── */
-    .add-section {
-      margin-bottom: 48px;
-    }
-
-    .section-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--accent2);
-      margin-bottom: 16px;
-    }
-
-    .add-form {
-      display: grid;
-      grid-template-columns: 60px 1fr 2fr auto;
-      gap: 10px;
-      align-items: stretch;
-    }
-
-    @media (max-width: 680px) {
-      .add-form { grid-template-columns: 60px 1fr; }
-      .add-form .url-input { grid-column: 1 / -1; }
-      .add-form .add-btn  { grid-column: 1 / -1; }
-    }
-
-    .input {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: 'Space Mono', monospace;
-      font-size: 13px;
-      padding: 12px 16px;
-      border-radius: 6px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .input::placeholder { color: var(--muted); }
-
-    .input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px #39ff1420;
-    }
-
-    .icon-input { text-align: center; font-size: 20px; }
-
-    .add-btn {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      font-family: 'Space Mono', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      text-transform: uppercase;
-      transition: all 0.15s;
-      white-space: nowrap;
-    }
-
-    .add-btn:hover {
-      background: #fff;
-      box-shadow: var(--glow);
-    }
-
-    .add-btn:active { transform: scale(0.97); }
-
-    /* ── Quick nav ── */
-    .quick-nav {
-      margin-bottom: 48px;
-    }
-
-    .quick-form {
-      display: flex;
-      gap: 10px;
-    }
-
-    .quick-form .input { flex: 1; }
-
-    .go-btn {
-      background: transparent;
-      color: var(--accent2);
-      border: 1px solid var(--accent2);
-      font-family: 'Space Mono', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      text-transform: uppercase;
-      transition: all 0.15s;
-    }
-
-    .go-btn:hover {
-      background: var(--accent2);
-      color: #000;
-      box-shadow: 0 0 20px #00d4ff40;
-    }
-
-    /* ── Site grid ── */
-    .sites-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .site-count {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 20px;
-      position: relative;
-      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-      animation: fadeIn 0.3s ease both;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .card:hover {
-      border-color: #2a3f55;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px #00000060;
-    }
-
-    .card:hover::before { opacity: 1; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .card-icon {
-      font-size: 28px;
-      margin-bottom: 12px;
-      line-height: 1;
-    }
-
-    .card-name {
-      font-size: 16px;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card-url {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 16px;
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .open-btn {
-      flex: 1;
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--accent);
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      padding: 8px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-      text-transform: uppercase;
-      text-decoration: none;
-      text-align: center;
-      transition: all 0.15s;
-    }
-
-    .open-btn:hover {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #000;
-      box-shadow: var(--glow);
-    }
-
-    .del-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 14px;
-      padding: 8px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.15s;
-      line-height: 1;
-    }
-
-    .del-btn:hover {
-      border-color: var(--danger);
-      color: var(--danger);
-      background: #ff3b5c15;
-    }
-
-    /* ── Empty state ── */
-    .empty {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 64px 24px;
-      color: var(--muted);
-      font-family: 'Space Mono', monospace;
-      font-size: 13px;
-    }
-
-    /* ── Toast ── */
-    #toast {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--accent);
-      font-family: 'Space Mono', monospace;
-      font-size: 12px;
-      padding: 12px 20px;
-      border-radius: 6px;
-      z-index: 9999;
-      opacity: 0;
-      transform: translateY(12px);
-      transition: all 0.25s;
-      pointer-events: none;
-    }
-
-    #toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#080c10;--surface:#0e1419;--border:#1e2d3d;--accent:#39ff14;--accent2:#00d4ff;--danger:#ff3b5c;--text:#c8d8e8;--muted:#4a6070}
+    [data-theme="ocean"]{--bg:#071020;--surface:#0d1a2e;--border:#1a3050;--accent:#00d4ff;--accent2:#0099ff;--text:#c0d8f0;--muted:#405870}
+    [data-theme="ember"]{--bg:#100807;--surface:#1a0f0c;--border:#3d1e1a;--accent:#ff6b35;--accent2:#ffa500;--text:#e8ccc8;--muted:#705040}
+    [data-theme="violet"]{--bg:#0a080f;--surface:#130e1e;--border:#2a1f40;--accent:#bf5fff;--accent2:#9b59ff;--text:#d0c0e8;--muted:#604880}
+    [data-theme="frost"]{--bg:#f0f4f8;--surface:#fff;--border:#d0d8e0;--accent:#0066cc;--accent2:#0099cc;--danger:#cc0033;--text:#1a2a3a;--muted:#6080a0}
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.25}
+    .app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px}
+    header{padding:36px 0 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap}
+    .logo-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.2em;text-transform:uppercase}
+    .logo-title{font-size:36px;font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1}
+    .logo-title span{color:var(--accent)}
+    .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .search-wrap{position:relative}
+    #search{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:13px;padding:9px 36px 9px 14px;border-radius:6px;outline:none;width:220px;transition:border-color .2s}
+    #search:focus{border-color:var(--accent)}
+    #search::placeholder{color:var(--muted)}
+    .search-hint{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);pointer-events:none}
+    .icon-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:14px;width:36px;height:36px;border-radius:6px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;text-decoration:none}
+    .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .status{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .tag-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;min-height:30px}
+    .tag-pill{font-family:'Space Mono',monospace;font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s}
+    .tag-pill:hover{border-color:var(--accent);color:var(--accent)}
+    .tag-pill.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+    .quick-nav{display:flex;gap:10px;margin-bottom:28px}
+    .quick-nav input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:13px;padding:11px 16px;border-radius:6px;outline:none;transition:border-color .2s}
+    .quick-nav input:focus{border-color:var(--accent2)}
+    .quick-nav input::placeholder{color:var(--muted)}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--accent2);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:11px 16px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all .15s;white-space:nowrap}
+    .btn-outline:hover{background:var(--accent2);color:#000}
+    .section{margin-bottom:28px}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;cursor:pointer;user-select:none}
+    .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent2)}
+    .toggle-btn{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;transition:color .15s;padding:2px 6px}
+    .toggle-btn:hover{color:var(--accent)}
+    .history-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+    .history-item{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s;max-width:180px}
+    .history-item:hover{border-color:var(--accent)}
+    .h-icon{font-size:16px;flex-shrink:0}
+    .h-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+    .history-empty{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);padding:8px 0}
+    .add-form{display:grid;grid-template-columns:60px 1fr 2fr 1fr auto;gap:10px}
+    @media(max-width:700px){.add-form{grid-template-columns:60px 1fr}.add-form .url-in,.add-form .tags-in,.add-btn-wrap{grid-column:1/-1}}
+    .input{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:13px;padding:11px 14px;border-radius:6px;outline:none;transition:border-color .2s}
+    .input:focus{border-color:var(--accent)}
+    .input::placeholder{color:var(--muted)}
+    .icon-in{text-align:center;font-size:20px}
+    .btn-primary{background:var(--accent);color:#000;border:none;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;padding:11px 22px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all .15s;white-space:nowrap}
+    .btn-primary:hover{filter:brightness(1.15)}
+    .btn-primary:active{transform:scale(.97)}
+    .sites-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .site-count{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative;transition:border-color .2s,transform .2s,box-shadow .2s;animation:fadeUp .3s ease both;cursor:grab}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .2s;border-radius:10px 10px 0 0}
+    .card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 30px #00000050}
+    .card:hover::before{opacity:1}
+    .card.drag-over{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent)}
+    .card.dragging{opacity:.4;transform:scale(.97)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .card-num{position:absolute;top:10px;right:12px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)}
+    .card-icon{font-size:26px;margin-bottom:10px;line-height:1}
+    .card-name{font-size:15px;font-weight:600;color:#fff;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .card-url{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px}
+    .card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;min-height:20px}
+    .card-tag{font-family:'Space Mono',monospace;font-size:9px;padding:2px 7px;border-radius:10px;border:1px solid var(--border);color:var(--muted)}
+    .card-actions{display:flex;gap:6px}
+    .open-btn{flex:1;background:transparent;border:1px solid var(--border);color:var(--accent);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:7px 6px;border-radius:5px;cursor:pointer;text-transform:uppercase;transition:all .15s}
+    .open-btn:hover{background:var(--accent);border-color:var(--accent);color:#000}
+    .frame-btn{background:transparent;border:1px solid var(--border);color:var(--accent2);font-family:'Space Mono',monospace;font-size:11px;padding:7px 8px;border-radius:5px;cursor:pointer;transition:all .15s}
+    .frame-btn:hover{background:var(--accent2);border-color:var(--accent2);color:#000}
+    .edit-btn,.del-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:12px;padding:7px 8px;border-radius:5px;cursor:pointer;transition:all .15s}
+    .edit-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+    .del-btn:hover{border-color:var(--danger);color:var(--danger)}
+    .empty{grid-column:1/-1;text-align:center;padding:60px 24px;color:var(--muted);font-family:'Space Mono',monospace;font-size:13px}
+    .iframe-panel{position:fixed;top:0;right:0;bottom:0;width:75%;background:var(--bg);border-left:1px solid var(--border);z-index:1000;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:-8px 0 40px #00000060}
+    .iframe-panel.open{transform:translateX(0)}
+    @media(max-width:700px){.iframe-panel{width:100%}}
+    .iframe-header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+    .iframe-title{font-family:'Space Mono',monospace;font-size:12px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #iframe-el{flex:1;border:none;background:#fff}
+    .overlay{position:fixed;inset:0;background:#00000080;backdrop-filter:blur(4px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s}
+    .overlay.open{opacity:1;pointer-events:all}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:100%;max-width:440px;position:relative;transform:translateY(16px);transition:transform .2s}
+    .overlay.open .modal{transform:translateY(0)}
+    .modal h3{font-size:18px;font-weight:800;color:#fff;margin-bottom:20px}
+    .modal-field{margin-bottom:14px}
+    .modal-field label{display:block;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+    .modal-field .input{width:100%}
+    .modal-actions{display:flex;gap:10px;margin-top:20px}
+    .modal-actions .btn-primary{flex:1}
+    .btn-ghost{flex:1;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:12px;padding:11px;border-radius:6px;cursor:pointer;transition:all .15s}
+    .btn-ghost:hover{border-color:var(--danger);color:var(--danger)}
+    .modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;transition:color .15s}
+    .modal-close:hover{color:var(--danger)}
+    .theme-picker{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+    .theme-swatch{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+    .swatch{width:38px;height:38px;border-radius:50%;border:3px solid transparent;transition:all .2s}
+    .theme-swatch.active .swatch{border-color:#fff;box-shadow:0 0 12px #fff6}
+    .swatch-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase}
+    .swatch-matrix{background:radial-gradient(#39ff14,#080c10)}
+    .swatch-ocean{background:radial-gradient(#00d4ff,#071020)}
+    .swatch-ember{background:radial-gradient(#ff6b35,#100807)}
+    .swatch-violet{background:radial-gradient(#bf5fff,#0a080f)}
+    .swatch-frost{background:radial-gradient(#0066cc,#f0f4f8)}
+    .settings-section-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;margin-top:20px}
+    .danger-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:12px;padding:10px;border-radius:6px;cursor:pointer;transition:all .15s;margin-bottom:8px}
+    .danger-btn:hover{border-color:var(--danger);color:var(--danger)}
+    .shortcut-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 20px;align-items:center}
+    .shortcut-key{font-family:'Space Mono',monospace;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:3px 8px;color:var(--accent);white-space:nowrap;display:inline-block}
+    .shortcut-desc{font-size:13px;color:var(--text)}
+    #toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);color:var(--accent);font-family:'Space Mono',monospace;font-size:12px;padding:10px 18px;border-radius:6px;z-index:9999;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none}
+    #toast.show{opacity:1;transform:translateY(0)}
   </style>
 </head>
 <body>
-<div class="noise"></div>
-<div class="container">
 
-  <!-- Header -->
+<div class="iframe-panel" id="iframe-panel">
+  <div class="iframe-header">
+    <span class="iframe-title" id="iframe-title">Loading…</span>
+    <div style="display:flex;gap:8px">
+      <button class="icon-btn" onclick="openIframeInTab()" title="Open in new tab">⬡</button>
+      <button class="icon-btn" onclick="closeIframe()" title="Close">✕</button>
+    </div>
+  </div>
+  <iframe id="iframe-el" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
+</div>
+
+<div class="app">
   <header>
     <div class="logo">
-      <span class="logo-tag">// access gateway</span>
+      <div class="logo-tag">// access gateway</div>
       <h1 class="logo-title">OPEN<span>GATE</span></h1>
     </div>
-    <div class="status-dot">
-      <div class="dot"></div>
-      <span>PROXY ONLINE</span>
+    <div class="header-right">
+      <div class="status"><div class="dot"></div><span>ONLINE</span></div>
+      <div class="search-wrap">
+        <input id="search" placeholder="Search… (/)" oninput="onSearch(this.value)" />
+        <span class="search-hint">/</span>
+      </div>
+      <button class="icon-btn" onclick="openModal('shortcuts')" title="Shortcuts (?)">?</button>
+      <button class="icon-btn" onclick="openModal('settings')" title="Settings">⚙</button>
+      <a class="icon-btn" href="/logout" title="Logout">⏻</a>
     </div>
   </header>
 
-  <!-- Quick navigate to any URL -->
+  <div class="tag-bar" id="tag-bar"></div>
+
   <div class="quick-nav">
-    <div class="section-label">// quick navigate</div>
-    <div class="quick-form">
-      <input class="input" id="quickUrl" type="text" placeholder="Paste any URL → https://example.com" />
-      <button class="go-btn" onclick="quickGo()">Go →</button>
+    <input id="quickUrl" placeholder="Quick navigate → paste any URL…" />
+    <button class="btn-outline" onclick="quickGo('tab')">New Tab →</button>
+    <button class="btn-outline" onclick="quickGo('frame')" style="color:var(--accent)">⊡ Frame</button>
+  </div>
+
+  <div class="section">
+    <div class="section-head" onclick="toggleSection('history-body','history-toggle')">
+      <span class="label">// recent</span>
+      <button class="toggle-btn" id="history-toggle">▾</button>
+    </div>
+    <div id="history-body">
+      <div class="history-strip" id="history-strip">
+        <div class="history-empty">No recent sites yet.</div>
+      </div>
     </div>
   </div>
 
-  <!-- Add site form -->
-  <div class="add-section">
-    <div class="section-label">// add site to dashboard</div>
-    <div class="add-form">
-      <input class="input icon-input" id="newIcon" type="text" placeholder="🌐" maxlength="4" />
-      <input class="input" id="newName" type="text" placeholder="Site name" />
-      <input class="input url-input" id="newUrl" type="text" placeholder="https://example.com" />
-      <button class="add-btn" onclick="addSite()">+ Add</button>
+  <div class="section">
+    <div class="section-head" onclick="toggleSection('add-body','add-toggle')">
+      <span class="label">// add site</span>
+      <button class="toggle-btn" id="add-toggle">▸</button>
+    </div>
+    <div id="add-body" style="display:none">
+      <div class="add-form">
+        <input class="input icon-in" id="newIcon" placeholder="🌐" maxlength="4" />
+        <input class="input" id="newName" placeholder="Name" />
+        <input class="input url-in" id="newUrl" placeholder="https://example.com" />
+        <input class="input tags-in" id="newTags" placeholder="Tags: school, games" />
+        <button class="btn-primary add-btn-wrap" onclick="addSite()">+ Add</button>
+      </div>
     </div>
   </div>
 
-  <!-- Sites grid -->
   <div class="sites-header">
-    <div class="section-label">// saved sites</div>
-    <div class="site-count" id="siteCount"></div>
+    <span class="label">// sites</span>
+    <span class="site-count" id="site-count"></span>
   </div>
+  <div class="grid" id="grid"></div>
+</div>
 
-  <div class="grid" id="grid">
-    <div class="empty">Loading sites…</div>
+<!-- Edit modal -->
+<div class="overlay" id="edit-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('edit')">✕</button>
+    <h3>Edit Site</h3>
+    <div class="modal-field"><label>Icon</label><input class="input" id="edit-icon" maxlength="4" style="width:70px;text-align:center;font-size:20px" /></div>
+    <div class="modal-field"><label>Name</label><input class="input" id="edit-name" style="width:100%" /></div>
+    <div class="modal-field"><label>URL</label><input class="input" id="edit-url" style="width:100%" /></div>
+    <div class="modal-field"><label>Tags (comma separated)</label><input class="input" id="edit-tags" style="width:100%" placeholder="school, games, social" /></div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
+      <button class="btn-ghost" onclick="closeModal('edit')">Cancel</button>
+    </div>
   </div>
+</div>
 
+<!-- Settings modal -->
+<div class="overlay" id="settings-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('settings')">✕</button>
+    <h3>Settings</h3>
+    <div class="settings-section-label">Theme</div>
+    <div class="theme-picker">
+      <div class="theme-swatch" onclick="setTheme('matrix')" id="sw-matrix"><div class="swatch swatch-matrix"></div><span class="swatch-label">Matrix</span></div>
+      <div class="theme-swatch" onclick="setTheme('ocean')"  id="sw-ocean"> <div class="swatch swatch-ocean"></div> <span class="swatch-label">Ocean</span></div>
+      <div class="theme-swatch" onclick="setTheme('ember')"  id="sw-ember"> <div class="swatch swatch-ember"></div> <span class="swatch-label">Ember</span></div>
+      <div class="theme-swatch" onclick="setTheme('violet')" id="sw-violet"><div class="swatch swatch-violet"></div><span class="swatch-label">Violet</span></div>
+      <div class="theme-swatch" onclick="setTheme('frost')"  id="sw-frost"> <div class="swatch swatch-frost"></div> <span class="swatch-label">Frost</span></div>
+    </div>
+    <div class="settings-section-label">Data</div>
+    <button class="danger-btn" onclick="clearHistory()">🗑 Clear visit history</button>
+    <p style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:16px">Change password: set APP_PASSWORD env var on Render</p>
+    <div class="modal-actions" style="margin-top:16px"><button class="btn-primary" onclick="closeModal('settings')">Done</button></div>
+  </div>
+</div>
+
+<!-- Shortcuts modal -->
+<div class="overlay" id="shortcuts-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('shortcuts')">✕</button>
+    <h3>Keyboard Shortcuts</h3>
+    <div class="shortcut-grid">
+      <span class="shortcut-key">/</span><span class="shortcut-desc">Focus search</span>
+      <span class="shortcut-key">n</span><span class="shortcut-desc">Open add site form</span>
+      <span class="shortcut-key">?</span><span class="shortcut-desc">Show this help</span>
+      <span class="shortcut-key">1 – 9</span><span class="shortcut-desc">Open site by number (new tab)</span>
+      <span class="shortcut-key">Shift + 1–9</span><span class="shortcut-desc">Open site in frame panel</span>
+      <span class="shortcut-key">Esc</span><span class="shortcut-desc">Close panel / modal / clear search</span>
+    </div>
+    <div class="modal-actions" style="margin-top:24px"><button class="btn-primary" onclick="closeModal('shortcuts')">Got it</button></div>
+  </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-  let sites = [];
+let sites=[],hist=[],activeTag=null,searchQuery='',editingId=null,dragSrcId=null,iframeUrl='';
 
-  async function loadSites() {
-    const res = await fetch('/api/sites');
-    sites = await res.json();
-    renderGrid();
-  }
+async function init(){
+  const t=localStorage.getItem('theme')||'matrix';
+  applyTheme(t);
+  await Promise.all([loadSites(),loadHist()]);
+  setupShortcuts();
+}
 
-  function renderGrid() {
-    const grid = document.getElementById('grid');
-    const count = document.getElementById('siteCount');
-    count.textContent = sites.length + ' site' + (sites.length !== 1 ? 's' : '');
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('.theme-swatch').forEach(el=>el.classList.remove('active'));
+  const sw=document.getElementById('sw-'+t);
+  if(sw)sw.classList.add('active');
+}
+function setTheme(t){localStorage.setItem('theme',t);applyTheme(t);}
 
-    if (sites.length === 0) {
-      grid.innerHTML = '<div class="empty">No sites yet — add one above.</div>';
+async function loadSites(){const r=await fetch('/api/sites');sites=await r.json();renderTags();renderSites();}
+
+function getFiltered(){
+  return sites.filter(s=>{
+    const mt=!activeTag||(s.tags||[]).includes(activeTag);
+    const q=searchQuery.toLowerCase();
+    const ms=!q||s.name.toLowerCase().includes(q)||s.url.toLowerCase().includes(q)||(s.tags||[]).some(t=>t.toLowerCase().includes(q));
+    return mt&&ms;
+  });
+}
+
+function renderTags(){
+  const all=[...new Set(sites.flatMap(s=>s.tags||[]))].sort();
+  document.getElementById('tag-bar').innerHTML=['all',...all].map(t=>`
+    <span class="tag-pill ${(!activeTag&&t==='all')||activeTag===t?'active':''}" onclick="filterTag('${t}')">${t}</span>`).join('');
+}
+
+function filterTag(t){activeTag=(t==='all')?null:t;renderTags();renderSites();}
+function onSearch(v){searchQuery=v;renderSites();}
+
+function renderSites(){
+  const f=getFiltered();
+  const g=document.getElementById('grid');
+  document.getElementById('site-count').textContent=f.length+' / '+sites.length+' sites';
+  if(!f.length){g.innerHTML='<div class="empty">No sites match.</div>';return;}
+  g.innerHTML=f.map((s,i)=>`
+    <div class="card" id="card-${s.id}" draggable="true"
+      ondragstart="dragStart(event,${s.id})" ondragover="dragOver(event,${s.id})"
+      ondragleave="dragLeave(${s.id})" ondrop="dragDrop(event,${s.id})"
+      style="animation-delay:${i*.04}s">
+      <span class="card-num">${i+1}</span>
+      <div class="card-icon">${s.icon||'🌐'}</div>
+      <div class="card-name">${esc(s.name)}</div>
+      <div class="card-url">${esc(s.url)}</div>
+      <div class="card-tags">${(s.tags||[]).map(t=>`<span class="card-tag">${esc(t)}</span>`).join('')}</div>
+      <div class="card-actions">
+        <button class="open-btn"  onclick="openSite(${s.id},'tab')">Open →</button>
+        <button class="frame-btn" onclick="openSite(${s.id},'frame')">⊡</button>
+        <button class="edit-btn"  onclick="editSite(${s.id})">✎</button>
+        <button class="del-btn"   onclick="deleteSite(${s.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+async function addSite(){
+  const name=document.getElementById('newName').value.trim();
+  const url=document.getElementById('newUrl').value.trim();
+  const icon=document.getElementById('newIcon').value.trim()||'🌐';
+  const tags=document.getElementById('newTags').value.trim();
+  if(!name||!url)return toast('⚠ Name and URL required');
+  const r=await fetch('/api/sites',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,url,icon,tags})});
+  sites.push(await r.json());
+  ['newName','newUrl','newIcon','newTags'].forEach(id=>document.getElementById(id).value='');
+  renderTags();renderSites();toast('✓ '+name+' added');
+}
+
+function editSite(id){
+  const s=sites.find(x=>x.id===id);if(!s)return;
+  editingId=id;
+  document.getElementById('edit-icon').value=s.icon||'🌐';
+  document.getElementById('edit-name').value=s.name;
+  document.getElementById('edit-url').value=s.url;
+  document.getElementById('edit-tags').value=(s.tags||[]).join(', ');
+  openModal('edit');
+}
+
+async function saveEdit(){
+  const icon=document.getElementById('edit-icon').value.trim();
+  const name=document.getElementById('edit-name').value.trim();
+  const url=document.getElementById('edit-url').value.trim();
+  const tags=document.getElementById('edit-tags').value.trim();
+  if(!name||!url)return toast('⚠ Name and URL required');
+  const r=await fetch('/api/sites/'+editingId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,url,icon,tags})});
+  const updated=await r.json();
+  sites=sites.map(s=>s.id===editingId?updated:s);
+  renderTags();renderSites();closeModal('edit');toast('✓ Updated');
+}
+
+async function deleteSite(id){
+  await fetch('/api/sites/'+id,{method:'DELETE'});
+  sites=sites.filter(s=>s.id!==id);
+  renderTags();renderSites();toast('Removed');
+}
+
+function dragStart(e,id){
+  dragSrcId=id;e.dataTransfer.effectAllowed='move';
+  document.getElementById('card-'+id)?.classList.add('dragging');
+}
+function dragOver(e,id){e.preventDefault();if(id!==dragSrcId)document.getElementById('card-'+id)?.classList.add('drag-over');}
+function dragLeave(id){document.getElementById('card-'+id)?.classList.remove('drag-over');}
+async function dragDrop(e,tgtId){
+  e.preventDefault();
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over','dragging'));
+  if(dragSrcId===tgtId)return;
+  const si=sites.findIndex(s=>s.id===dragSrcId);
+  const ti=sites.findIndex(s=>s.id===tgtId);
+  const r=[...sites];const[m]=r.splice(si,1);r.splice(ti,0,m);sites=r;
+  renderSites();
+  await fetch('/api/reorder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:sites.map(s=>s.id)})});
+  toast('↕ Order saved');
+}
+
+async function loadHist(){const r=await fetch('/api/history');hist=await r.json();renderHist();}
+function renderHist(){
+  const strip=document.getElementById('history-strip');
+  if(!hist.length){strip.innerHTML='<div class="history-empty">No recent sites yet.</div>';return;}
+  strip.innerHTML=hist.map(h=>`
+    <div class="history-item" onclick="openHistItem('${esc(h.url)}','${esc(h.name)}','${esc(h.icon||'🌐')}')">
+      <span class="h-icon">${h.icon||'🌐'}</span>
+      <span class="h-name">${esc(h.name)}</span>
+    </div>`).join('');
+}
+async function trackVisit(s){
+  await fetch('/api/history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:s.name,url:s.url,icon:s.icon||'🌐'})});
+  hist=hist.filter(h=>h.url!==s.url);
+  hist.unshift({name:s.name,url:s.url,icon:s.icon||'🌐'});
+  hist=hist.slice(0,20);renderHist();
+}
+function openHistItem(url,name,icon){
+  trackVisit({name,url,icon});
+  window.open('/proxy?url='+encodeURIComponent(url),'_blank');
+}
+async function clearHistory(){
+  await fetch('/api/history',{method:'DELETE'});
+  hist=[];renderHist();toast('History cleared');
+}
+
+function openSite(id,mode){
+  const s=sites.find(x=>x.id===id);if(!s)return;
+  trackVisit(s);
+  const p='/proxy?url='+encodeURIComponent(s.url);
+  if(mode==='frame')openIframe(p,s.name);
+  else window.open(p,'_blank');
+}
+function openIframe(url,title){
+  iframeUrl=url;
+  document.getElementById('iframe-title').textContent=title||url;
+  document.getElementById('iframe-el').src=url;
+  document.getElementById('iframe-panel').classList.add('open');
+}
+function closeIframe(){
+  document.getElementById('iframe-panel').classList.remove('open');
+  setTimeout(()=>{document.getElementById('iframe-el').src='about:blank';},300);
+}
+function openIframeInTab(){if(iframeUrl)window.open(iframeUrl,'_blank');}
+
+function quickGo(mode){
+  let url=document.getElementById('quickUrl').value.trim();
+  if(!url)return;
+  if(!url.startsWith('http'))url='https://'+url;
+  const p='/proxy?url='+encodeURIComponent(url);
+  if(mode==='frame')openIframe(p,url);
+  else window.open(p,'_blank');
+}
+
+function toggleSection(bodyId,toggleId){
+  const body=document.getElementById(bodyId);
+  const btn=document.getElementById(toggleId);
+  const hidden=body.style.display==='none';
+  body.style.display=hidden?'':'none';
+  btn.textContent=hidden?'▾':'▸';
+}
+
+function openModal(name){document.getElementById(name+'-overlay').classList.add('open');}
+function closeModal(name){document.getElementById(name+'-overlay').classList.remove('open');}
+
+function setupShortcuts(){
+  document.addEventListener('keydown',e=>{
+    const tag=document.activeElement.tagName.toLowerCase();
+    const typing=tag==='input'||tag==='textarea';
+    if(e.key==='Escape'){
+      if(document.querySelector('.overlay.open')){document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));}
+      else if(document.getElementById('iframe-panel').classList.contains('open')){closeIframe();}
+      else if(searchQuery){document.getElementById('search').value='';onSearch('');}
       return;
     }
-
-    grid.innerHTML = sites.map((site, i) => `
-      <div class="card" style="animation-delay:${i * 0.05}s">
-        <div class="card-icon">${site.icon || '🌐'}</div>
-        <div class="card-name">${esc(site.name)}</div>
-        <div class="card-url">${esc(site.url)}</div>
-        <div class="card-actions">
-          <a class="open-btn" href="/proxy?url=${encodeURIComponent(site.url)}" target="_blank">Open →</a>
-          <button class="del-btn" onclick="deleteSite(${site.id})" title="Remove">✕</button>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  async function addSite() {
-    const name = document.getElementById('newName').value.trim();
-    const url  = document.getElementById('newUrl').value.trim();
-    const icon = document.getElementById('newIcon').value.trim() || '🌐';
-
-    if (!name || !url) { toast('⚠ Name and URL are required'); return; }
-
-    const res = await fetch('/api/sites', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, url, icon }),
-    });
-    const newSite = await res.json();
-    sites.push(newSite);
-
-    document.getElementById('newName').value = '';
-    document.getElementById('newUrl').value = '';
-    document.getElementById('newIcon').value = '';
-
-    renderGrid();
-    toast('✓ ' + name + ' added');
-  }
-
-  async function deleteSite(id) {
-    await fetch('/api/sites/' + id, { method: 'DELETE' });
-    sites = sites.filter(s => s.id !== id);
-    renderGrid();
-    toast('Removed');
-  }
-
-  function quickGo() {
-    let url = document.getElementById('quickUrl').value.trim();
-    if (!url) return;
-    if (!url.startsWith('http')) url = 'https://' + url;
-    window.open('/proxy?url=' + encodeURIComponent(url), '_blank');
-  }
-
-  document.getElementById('quickUrl').addEventListener('keydown', e => {
-    if (e.key === 'Enter') quickGo();
+    if(typing)return;
+    if(e.key==='/')      {e.preventDefault();document.getElementById('search').focus();}
+    else if(e.key==='n') {const b=document.getElementById('add-body');if(b.style.display==='none')toggleSection('add-body','add-toggle');document.getElementById('newName').focus();}
+    else if(e.key==='?') {openModal('shortcuts');}
+    else if(e.key>='1'&&e.key<='9'){const f=getFiltered();const s=f[parseInt(e.key)-1];if(s)openSite(s.id,e.shiftKey?'frame':'tab');}
   });
+  document.getElementById('quickUrl').addEventListener('keydown',e=>{if(e.key==='Enter')quickGo('tab');});
+  document.getElementById('newUrl').addEventListener('keydown',e=>{if(e.key==='Enter')addSite();});
+  document.querySelectorAll('.overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
+}
 
-  document.getElementById('newUrl').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addSite();
-  });
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
-  function esc(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  let toastTimer;
-  function toast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
-  }
-
-  loadSites();
+init();
 </script>
 </body>
 </html>
