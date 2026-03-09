@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: opengate
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: RENDER_DISK_PATH
+        value: /data
+    disk:
+      name: sites-data
+      mountPath: /data
+      sizeGB: 1
