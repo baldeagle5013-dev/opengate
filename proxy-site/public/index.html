@@ -15,7 +15,6 @@
     html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow-x:hidden}
     body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.22}
     .app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px}
-    /* header */
     header{padding:32px 0 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);margin-bottom:28px;flex-wrap:wrap}
     .logo-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.2em;text-transform:uppercase}
     .logo-title{font-size:34px;font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1}
@@ -26,39 +25,36 @@
     #search:focus{border-color:var(--accent)}
     #search::placeholder{color:var(--muted)}
     .search-hint{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);pointer-events:none}
-    .icon-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:14px;min-width:34px;height:34px;border-radius:6px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;text-decoration:none;padding:0 6px;font-family:'Space Mono',monospace;white-space:nowrap}
+    .icon-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:13px;min-width:34px;height:34px;border-radius:6px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;text-decoration:none;padding:0 8px;font-family:'Space Mono',monospace;white-space:nowrap;gap:4px}
     .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
     .icon-btn.danger:hover{border-color:var(--danger);color:var(--danger)}
-    .icon-btn.warn{border-color:var(--warn);color:var(--warn)}
+    .panic-btn{background:transparent;border:1px solid var(--warn);color:var(--warn);font-size:13px;min-width:34px;height:34px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 8px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.05em;gap:5px;transition:all .15s}
+    .panic-btn:hover{background:var(--warn);color:#000}
     .status{display:flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)}
     .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-    /* tags */
+    .guest-badge{font-family:'Space Mono',monospace;font-size:10px;background:color-mix(in srgb,var(--warn) 15%,transparent);border:1px solid var(--warn);color:var(--warn);padding:3px 10px;border-radius:4px}
     .tag-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px;min-height:28px}
     .tag-pill{font-family:'Space Mono',monospace;font-size:11px;padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s}
     .tag-pill:hover{border-color:var(--accent);color:var(--accent)}
     .tag-pill.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
-    /* quick nav */
     .quick-nav{display:flex;gap:8px;margin-bottom:26px;flex-wrap:wrap}
     .quick-nav input{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:13px;padding:10px 14px;border-radius:6px;outline:none;transition:border-color .2s}
     .quick-nav input:focus{border-color:var(--accent2)}
     .quick-nav input::placeholder{color:var(--muted)}
     .btn-outline{background:transparent;border:1px solid var(--border);color:var(--accent2);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:10px 14px;border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all .15s;white-space:nowrap}
     .btn-outline:hover{background:var(--accent2);color:#000}
-    /* section */
     .section{margin-bottom:24px}
     .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer;user-select:none}
     .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent2)}
     .toggle-btn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:2px 5px;transition:color .15s}
     .toggle-btn:hover{color:var(--accent)}
-    /* history */
     .history-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
     .history-item{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:7px;cursor:pointer;transition:all .15s;max-width:170px}
     .history-item:hover{border-color:var(--accent)}
     .h-icon{font-size:15px;flex-shrink:0}
     .h-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
     .history-empty{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);padding:6px 0}
-    /* add form */
     .add-form{display:grid;grid-template-columns:54px 1fr 2fr 1fr auto auto;gap:8px;align-items:start}
     @media(max-width:700px){.add-form{grid-template-columns:54px 1fr}.url-in,.tags-in,.compat-wrap,.add-btn-wrap{grid-column:1/-1}}
     .input{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:13px;padding:10px 12px;border-radius:6px;outline:none;transition:border-color .2s;width:100%}
@@ -69,12 +65,10 @@
     .btn-primary:hover{filter:brightness(1.15)}
     .btn-primary:active{transform:scale(.97)}
     .compat-toggle{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;padding:10px 0;white-space:nowrap}
-    .compat-toggle input{accent-color:var(--warn);width:15px;height:15px;cursor:pointer}
-    /* grid */
+    .compat-toggle input{accent-color:var(--warn);width:14px;height:14px;cursor:pointer}
     .sites-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
     .site-count{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)}
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-    /* card */
     .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;transition:border-color .2s,transform .2s,box-shadow .2s;animation:fadeUp .3s ease both;cursor:grab}
     .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .2s;border-radius:10px 10px 0 0}
     .card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 28px #00000050}
@@ -85,7 +79,7 @@
     .card.compat-mode::before{background:var(--warn)!important;opacity:1}
     @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
     .card-num{position:absolute;top:9px;right:11px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)}
-    .card-compat-badge{position:absolute;top:9px;left:11px;font-size:9px;font-family:'Space Mono',monospace;color:var(--warn);letter-spacing:.05em}
+    .card-compat-badge{position:absolute;top:9px;left:11px;font-size:9px;font-family:'Space Mono',monospace;color:var(--warn)}
     .card-icon{font-size:24px;margin-bottom:8px;line-height:1}
     .card-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .card-url{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:7px}
@@ -100,19 +94,48 @@
     .edit-btn:hover{border-color:var(--accent2);color:var(--accent2)}
     .del-btn:hover{border-color:var(--danger);color:var(--danger)}
     .empty{grid-column:1/-1;text-align:center;padding:56px 24px;color:var(--muted);font-family:'Space Mono',monospace;font-size:13px}
-    /* iframe panel */
-    .iframe-panel{position:fixed;z-index:1000;background:var(--bg);border:1px solid var(--border);display:flex;flex-direction:column;transform:translateX(200%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 0 60px #00000080}
-    .iframe-panel.right{top:0;right:0;bottom:0;border-right:none;border-top:none;border-bottom:none;transform:translateX(100%)}
-    .iframe-panel.left{top:0;left:0;bottom:0;border-left:none;border-top:none;border-bottom:none;transform:translateX(-100%)}
-    .iframe-panel.open{transform:translateX(0)}
-    .iframe-header{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+
+    /* ── Floating iframe window ── */
+    #iframe-win{
+      position:fixed;z-index:1000;
+      background:var(--bg);
+      border:1px solid var(--accent);
+      border-radius:8px;
+      box-shadow:0 8px 60px #000000a0, 0 0 0 1px var(--border);
+      display:flex;flex-direction:column;
+      min-width:320px;min-height:240px;
+      display:none;
+      overflow:hidden;
+    }
+    #iframe-win.open{display:flex}
+    .iframe-titlebar{
+      display:flex;align-items:center;gap:10px;
+      padding:8px 12px;
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      cursor:move;user-select:none;flex-shrink:0;
+    }
     .iframe-title{font-family:'Space Mono',monospace;font-size:11px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    #iframe-el{flex:1;border:none;background:#fff}
-    /* resize handle */
-    .resize-handle{position:absolute;top:0;bottom:0;width:6px;background:transparent;cursor:col-resize;z-index:10}
-    .resize-handle:hover,.resize-handle.active{background:color-mix(in srgb,var(--accent) 30%,transparent)}
-    .iframe-panel.right .resize-handle{left:0}
-    .iframe-panel.left  .resize-handle{right:0}
+    .iframe-actions{display:flex;gap:5px;flex-shrink:0}
+    .iframe-btn{background:none;border:1px solid var(--border);color:var(--muted);font-size:11px;width:26px;height:26px;border-radius:4px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .iframe-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .iframe-btn.close:hover{border-color:var(--danger);color:var(--danger)}
+    #iframe-el{flex:1;border:none;background:#fff;display:block;min-height:0}
+    /* resize handles */
+    .rh{position:absolute;z-index:10}
+    .rh-n {top:-4px;left:8px;right:8px;height:8px;cursor:n-resize}
+    .rh-s {bottom:-4px;left:8px;right:8px;height:8px;cursor:s-resize}
+    .rh-e {right:-4px;top:8px;bottom:8px;width:8px;cursor:e-resize}
+    .rh-w {left:-4px;top:8px;bottom:8px;width:8px;cursor:w-resize}
+    .rh-ne{top:-4px;right:-4px;width:14px;height:14px;cursor:ne-resize}
+    .rh-nw{top:-4px;left:-4px;width:14px;height:14px;cursor:nw-resize}
+    .rh-se{bottom:-4px;right:-4px;width:14px;height:14px;cursor:se-resize}
+    .rh-sw{bottom:-4px;left:-4px;width:14px;height:14px;cursor:sw-resize}
+
+    /* snap buttons inside iframe toolbar */
+    .snap-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:10px;padding:3px 6px;border-radius:3px;cursor:pointer;transition:all .15s;font-family:'Space Mono',monospace}
+    .snap-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+
     /* overlays */
     .overlay{position:fixed;inset:0;background:#00000085;backdrop-filter:blur(4px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
     .overlay.open{opacity:1;pointer-events:all}
@@ -127,9 +150,8 @@
     .btn-ghost:hover{border-color:var(--danger);color:var(--danger)}
     .modal-close{position:absolute;top:13px;right:13px;background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;transition:color .15s}
     .modal-close:hover{color:var(--danger)}
-    /* settings */
     .settings-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px}
-    .theme-picker{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:4px}
+    .theme-picker{display:flex;gap:14px;flex-wrap:wrap}
     .theme-swatch{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
     .swatch{width:36px;height:36px;border-radius:50%;border:3px solid transparent;transition:all .2s}
     .theme-swatch.active .swatch{border-color:#fff;box-shadow:0 0 10px #fff5}
@@ -145,36 +167,43 @@
     .danger-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:12px;padding:9px;border-radius:6px;cursor:pointer;transition:all .15s;margin-bottom:7px}
     .danger-btn:hover{border-color:var(--danger);color:var(--danger)}
     /* guest link */
-    .guest-link-box{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--accent2);word-break:break-all;margin-top:10px;display:none}
-    /* panic overlay */
-    #panic-flash{position:fixed;inset:0;background:#ff0000;z-index:99999;opacity:0;pointer-events:none;transition:opacity .1s}
+    .guest-link-output{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--accent2);word-break:break-all;line-height:1.7;margin-top:12px}
+    .guest-link-url{color:var(--accent);font-size:10px;margin-top:6px;word-break:break-all}
+    .copy-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;margin-top:6px;transition:all .15s}
+    .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
     /* shortcuts */
     .shortcut-grid{display:grid;grid-template-columns:auto 1fr;gap:7px 18px;align-items:center}
     .sk{font-family:'Space Mono',monospace;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 8px;color:var(--accent);white-space:nowrap}
     .sd{font-size:13px;color:var(--text)}
-    /* guest badge */
-    .guest-badge{font-family:'Space Mono',monospace;font-size:10px;background:color-mix(in srgb,var(--warn) 15%,transparent);border:1px solid var(--warn);color:var(--warn);padding:3px 10px;border-radius:4px}
-    /* edit password prompt */
-    #edit-pw-overlay .modal{max-width:360px}
-    /* idle bar */
     #idle-bar{position:fixed;bottom:0;left:0;right:0;height:3px;background:var(--accent);transform-origin:left;z-index:9990;transition:transform .5s linear;display:none}
     #toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);color:var(--accent);font-family:'Space Mono',monospace;font-size:12px;padding:9px 16px;border-radius:6px;z-index:9999;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none}
     #toast.show{opacity:1;transform:translateY(0)}
   </style>
 </head>
 <body>
-<div id="panic-flash"></div>
 <div id="idle-bar"></div>
 
-<!-- Iframe panel -->
-<div class="iframe-panel right" id="iframe-panel" style="width:75%">
-  <div class="resize-handle" id="resize-handle"></div>
-  <div class="iframe-header">
+<!-- ── Floating iframe window ─────────────────────────────────────────────────── -->
+<div id="iframe-win">
+  <!-- resize handles -->
+  <div class="rh rh-n"  data-dir="n"></div>
+  <div class="rh rh-s"  data-dir="s"></div>
+  <div class="rh rh-e"  data-dir="e"></div>
+  <div class="rh rh-w"  data-dir="w"></div>
+  <div class="rh rh-ne" data-dir="ne"></div>
+  <div class="rh rh-nw" data-dir="nw"></div>
+  <div class="rh rh-se" data-dir="se"></div>
+  <div class="rh rh-sw" data-dir="sw"></div>
+
+  <div class="iframe-titlebar" id="iframe-titlebar">
     <span class="iframe-title" id="iframe-title">Loading…</span>
-    <div style="display:flex;gap:6px">
-      <button class="icon-btn" onclick="openIframeInTab()" title="Open in new tab">⬡</button>
-      <button class="icon-btn" onclick="toggleIframePosition()" title="Swap side" id="pos-btn">⇄</button>
-      <button class="icon-btn" onclick="closeIframe()" title="Close">✕</button>
+    <div class="iframe-actions">
+      <button class="snap-btn" onclick="snapWin('left')"  title="Snap left">⬛←</button>
+      <button class="snap-btn" onclick="snapWin('right')" title="Snap right">→⬛</button>
+      <button class="snap-btn" onclick="snapWin('full')"  title="Fullscreen">⛶</button>
+      <button class="snap-btn" onclick="snapWin('center')" title="Centre">⊞</button>
+      <button class="iframe-btn" onclick="openIframeInTab()" title="Open in new tab">⬡</button>
+      <button class="iframe-btn close" onclick="closeIframe()" title="Close">✕</button>
     </div>
   </div>
   <iframe id="iframe-el" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
@@ -187,13 +216,13 @@
       <h1 class="logo-title">OPEN<span>GATE</span></h1>
     </div>
     <div class="header-right">
-      <div class="status"><div class="dot"></div><span id="status-label">ONLINE</span></div>
+      <div class="status"><div class="dot"></div><span>ONLINE</span></div>
       <span class="guest-badge" id="guest-badge" style="display:none">GUEST</span>
       <div class="search-wrap">
         <input id="search" placeholder="Search… (/)" oninput="onSearch(this.value)">
         <span class="search-hint">/</span>
       </div>
-      <button class="icon-btn warn" onclick="panic()" title="Panic! (P) — navigate all tabs to decoy">🚨</button>
+      <button class="panic-btn" onclick="panic()" title="Panic! (P)">🚨 PANIC</button>
       <button class="icon-btn" onclick="openModal('shortcuts')" title="Shortcuts (?)">?</button>
       <button class="icon-btn" onclick="openModal('settings')" title="Settings">⚙</button>
       <a class="icon-btn danger" href="/logout" title="Logout">⏻</a>
@@ -251,7 +280,7 @@
     <div class="modal-field"><label>Name</label><input class="input" id="edit-name"></div>
     <div class="modal-field"><label>URL</label><input class="input" id="edit-url"></div>
     <div class="modal-field"><label>Tags (comma separated)</label><input class="input" id="edit-tags" placeholder="school, games"></div>
-    <div class="modal-field"><label><input type="checkbox" id="edit-compat" style="accent-color:var(--warn);margin-right:6px">Compatibility mode (strips JavaScript — use if site breaks)</label></div>
+    <div class="modal-field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="edit-compat" style="accent-color:var(--warn);width:14px;height:14px"> Compatibility mode (strips JS — use if site breaks)</label></div>
     <div class="modal-actions">
       <button class="btn-primary" onclick="saveEdit()">Save</button>
       <button class="btn-ghost" onclick="closeModal('edit')">Cancel</button>
@@ -261,12 +290,12 @@
 
 <!-- Edit password prompt -->
 <div class="overlay" id="edit-pw-overlay">
-  <div class="modal">
+  <div class="modal" style="max-width:360px">
     <button class="modal-close" onclick="closeModal('edit-pw')">✕</button>
     <h3>Edit Password</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Enter the edit password to modify the site list.</p>
-    <input class="input" type="password" id="edit-pw-input" placeholder="Edit password" style="width:100%;margin-bottom:4px">
-    <div id="edit-pw-err" style="color:var(--danger);font-family:'Space Mono',monospace;font-size:11px;min-height:18px;margin-top:6px"></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Enter the edit password to continue.</p>
+    <input class="input" type="password" id="edit-pw-input" placeholder="Edit password" style="width:100%">
+    <div id="edit-pw-err" style="color:var(--danger);font-family:'Space Mono',monospace;font-size:11px;min-height:18px;margin-top:8px"></div>
     <div class="modal-actions">
       <button class="btn-primary" onclick="submitEditPw()">Unlock</button>
       <button class="btn-ghost" onclick="closeModal('edit-pw')">Cancel</button>
@@ -289,32 +318,30 @@
       <div class="theme-swatch" onclick="setTheme('frost')"  id="sw-frost"> <div class="swatch swatch-frost"></div> <span class="swatch-label">Frost</span></div>
     </div>
 
-    <div class="settings-label">Idle auto-redirect to decoy <span style="color:var(--accent);font-size:9px">(30s recommended)</span></div>
+    <div class="settings-label">Idle auto-redirect <span style="color:var(--accent);font-size:9px">(30s recommended)</span></div>
     <div class="radio-row" id="idle-opts">
-      <span class="radio-opt" data-val="15000"  onclick="setIdle(this)">15s ★</span>
-      <span class="radio-opt" data-val="30000"  onclick="setIdle(this)">30s</span>
-      <span class="radio-opt" data-val="60000"  onclick="setIdle(this)">1 min</span>
-      <span class="radio-opt" data-val="0"      onclick="setIdle(this)">Off</span>
+      <span class="radio-opt" data-val="15000" onclick="setIdle(this)">15s ★</span>
+      <span class="radio-opt" data-val="30000" onclick="setIdle(this)">30s</span>
+      <span class="radio-opt" data-val="60000" onclick="setIdle(this)">1 min</span>
+      <span class="radio-opt" data-val="0"     onclick="setIdle(this)">Off</span>
     </div>
 
-    <div class="settings-label">Frame panel width</div>
-    <div class="radio-row" id="frame-width-opts">
-      <span class="radio-opt" data-val="50"  onclick="setFrameWidth(this)">50%</span>
-      <span class="radio-opt" data-val="65"  onclick="setFrameWidth(this)">65%</span>
-      <span class="radio-opt" data-val="75"  onclick="setFrameWidth(this)">75%</span>
-      <span class="radio-opt" data-val="85"  onclick="setFrameWidth(this)">85%</span>
-      <span class="radio-opt" data-val="100" onclick="setFrameWidth(this)">Full</span>
+    <div class="settings-label">Guest link (read-only access, requires edit password)</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <select id="guest-mins" class="input" style="flex:1;min-width:120px">
+        <option value="5">5 minutes</option>
+        <option value="10">10 minutes</option>
+        <option value="15" selected>15 minutes</option>
+        <option value="30">30 minutes</option>
+        <option value="60">60 minutes</option>
+      </select>
+      <button class="btn-outline" style="flex:1" onclick="genGuestLink()">Generate →</button>
     </div>
-
-    <div class="settings-label">Frame panel position</div>
-    <div class="radio-row" id="frame-pos-opts">
-      <span class="radio-opt" data-val="right" onclick="setFramePos(this)">Right</span>
-      <span class="radio-opt" data-val="left"  onclick="setFramePos(this)">Left</span>
+    <div id="guest-link-output" style="display:none" class="guest-link-output">
+      <div id="guest-link-info"></div>
+      <div id="guest-link-url" class="guest-link-url"></div>
+      <button class="copy-btn" onclick="copyGuestLink()">Copy link</button>
     </div>
-
-    <div class="settings-label">Guest link (15 min access, read-only)</div>
-    <button class="btn-outline" style="width:100%" onclick="genGuestLink()">Generate guest link</button>
-    <div class="guest-link-box" id="guest-link-box"></div>
 
     <div class="settings-label">Data</div>
     <button class="danger-btn" onclick="clearHistory()">🗑 Clear my visit history</button>
@@ -331,12 +358,12 @@
     <button class="modal-close" onclick="closeModal('shortcuts')">✕</button>
     <h3>Keyboard Shortcuts</h3>
     <div class="shortcut-grid">
-      <span class="sk">P</span><span class="sd">🚨 Panic — all tabs → decoy</span>
+      <span class="sk">P</span><span class="sd">🚨 Panic — all tabs → decoy instantly</span>
       <span class="sk">/</span><span class="sd">Focus search</span>
       <span class="sk">n</span><span class="sd">Open add site form</span>
       <span class="sk">?</span><span class="sd">This help</span>
       <span class="sk">1–9</span><span class="sd">Open site by number (new tab)</span>
-      <span class="sk">Shift+1–9</span><span class="sd">Open site in frame</span>
+      <span class="sk">Shift+1–9</span><span class="sd">Open site in floating frame</span>
       <span class="sk">Esc</span><span class="sd">Close modal / frame / clear search</span>
     </div>
     <div class="modal-actions" style="margin-top:22px"><button class="btn-primary" onclick="closeModal('shortcuts')">Got it</button></div>
@@ -347,33 +374,30 @@
 
 <script>
 // ── State ─────────────────────────────────────────────────────────────────────
-let sites=[], hist=[], activeTag=null, searchQuery='', editingId=null;
-let dragSrcId=null, iframeUrl='', iframeSide='right', iframeWidthPct=75;
-let editPwCached=null, editPwQueue=null, authLevel='full';
-let idleTimer=null, idleMs=15000, idleStart=0;
+let sites=[],hist=[],activeTag=null,searchQuery='',editingId=null;
+let dragSrcId=null,iframeUrl='',editPwCached=null,editPwQueue=null,authLevel='full';
+let idleTimer=null,idleMs=15000,idleStart=0;
+let lastGuestLink='';
 
-// BroadcastChannel for panic across tabs
-let bc;
-try{ bc=new BroadcastChannel('opengate'); bc.onmessage=e=>{ if(e.data==='PANIC') panicNow(); }; }catch(e){}
+// BroadcastChannel for panic
+let bc; try{ bc=new BroadcastChannel('opengate'); bc.onmessage=e=>{ if(e.data==='PANIC') panicNow(); }; }catch(e){}
 
 async function init(){
   applyTheme(localStorage.getItem('theme')||'matrix');
   applyIdleSetting(parseInt(localStorage.getItem('idleTimeout')||'15000'));
-  applyFrameWidth(parseInt(localStorage.getItem('frameWidth')||'75'));
-  applyFramePos(localStorage.getItem('framePos')||'right');
-  const me = await fetch('/api/me').then(r=>r.json()).catch(()=>({level:'full'}));
-  authLevel = me.level;
+  const me=await fetch('/api/me').then(r=>r.json()).catch(()=>({level:'full'}));
+  authLevel=me.level;
   if(authLevel==='guest'){
     document.getElementById('guest-badge').style.display='';
     document.getElementById('add-section').style.display='none';
   }
-  await Promise.all([loadSites(), loadHist()]);
+  await Promise.all([loadSites(),loadHist()]);
   setupShortcuts();
   setupIdleTimer();
-  setupResize();
+  setupIframeWindow();
 }
 
-// ── Theme ──────────────────────────────────────────────────────────────────────
+// ── Theme ─────────────────────────────────────────────────────────────────────
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   document.querySelectorAll('.theme-swatch').forEach(el=>el.classList.remove('active'));
@@ -384,18 +408,13 @@ function setTheme(t){ localStorage.setItem('theme',t); applyTheme(t); }
 // ── Idle timer ────────────────────────────────────────────────────────────────
 function applyIdleSetting(ms){
   idleMs=ms;
-  document.querySelectorAll('#idle-opts .radio-opt').forEach(el=>{
-    el.classList.toggle('active', parseInt(el.dataset.val)===ms);
-  });
-  const bar=document.getElementById('idle-bar');
-  bar.style.display = ms>0 ? '' : 'none';
+  document.querySelectorAll('#idle-opts .radio-opt').forEach(el=>el.classList.toggle('active',parseInt(el.dataset.val)===ms));
+  document.getElementById('idle-bar').style.display=ms>0?'':'none';
 }
 function setIdle(el){
   const ms=parseInt(el.dataset.val);
   localStorage.setItem('idleTimeout',ms);
-  applyIdleSetting(ms);
-  setupIdleTimer();
-  closeModal('settings');
+  applyIdleSetting(ms); setupIdleTimer(); closeModal('settings');
   toast(ms>0?'Idle redirect: '+el.textContent.replace('★','').trim():'Idle redirect off');
 }
 function setupIdleTimer(){
@@ -403,74 +422,17 @@ function setupIdleTimer(){
   if(!idleMs){ document.getElementById('idle-bar').style.display='none'; return; }
   idleStart=Date.now();
   document.getElementById('idle-bar').style.display='';
-  const resetIdle=()=>{ idleStart=Date.now(); };
+  const reset=()=>{ idleStart=Date.now(); };
   ['mousemove','keydown','mousedown','touchstart','scroll'].forEach(ev=>{
-    document.removeEventListener(ev,resetIdle);
-    document.addEventListener(ev,resetIdle,{passive:true});
+    document.removeEventListener(ev,reset);
+    document.addEventListener(ev,reset,{passive:true});
   });
   window._idleInterval=setInterval(()=>{
     const elapsed=Date.now()-idleStart;
     const remaining=Math.max(0,idleMs-elapsed);
-    const frac=remaining/idleMs;
-    document.getElementById('idle-bar').style.transform=`scaleX(${frac})`;
+    document.getElementById('idle-bar').style.transform=`scaleX(${remaining/idleMs})`;
     if(remaining<=0){ clearInterval(window._idleInterval); panicNow(); }
   },500);
-}
-
-// ── Frame settings ─────────────────────────────────────────────────────────────
-function applyFrameWidth(pct){
-  iframeWidthPct=pct;
-  document.getElementById('iframe-panel').style.width=pct+'%';
-  document.querySelectorAll('#frame-width-opts .radio-opt').forEach(el=>{
-    el.classList.toggle('active',parseInt(el.dataset.val)===pct);
-  });
-}
-function setFrameWidth(el){
-  const pct=parseInt(el.dataset.val);
-  localStorage.setItem('frameWidth',pct);
-  applyFrameWidth(pct);
-}
-function applyFramePos(side){
-  iframeSide=side;
-  const panel=document.getElementById('iframe-panel');
-  panel.classList.remove('left','right');
-  panel.classList.add(side);
-  document.querySelectorAll('#frame-pos-opts .radio-opt').forEach(el=>{
-    el.classList.toggle('active',el.dataset.val===side);
-  });
-}
-function setFramePos(el){
-  localStorage.setItem('framePos',el.dataset.val);
-  applyFramePos(el.dataset.val);
-}
-function toggleIframePosition(){
-  const newSide=iframeSide==='right'?'left':'right';
-  localStorage.setItem('framePos',newSide);
-  applyFramePos(newSide);
-}
-
-// ── Resize handle ─────────────────────────────────────────────────────────────
-function setupResize(){
-  const handle=document.getElementById('resize-handle');
-  const panel=document.getElementById('iframe-panel');
-  let dragging=false, startX=0, startW=0;
-  handle.addEventListener('mousedown',e=>{
-    dragging=true; startX=e.clientX; startW=panel.offsetWidth;
-    handle.classList.add('active');
-    document.body.style.userSelect='none';
-  });
-  document.addEventListener('mousemove',e=>{
-    if(!dragging)return;
-    const dx = iframeSide==='right' ? startX-e.clientX : e.clientX-startX;
-    const newW=Math.max(300,Math.min(window.innerWidth-100, startW+dx));
-    panel.style.width=newW+'px';
-  });
-  document.addEventListener('mouseup',()=>{
-    if(!dragging)return;
-    dragging=false;
-    handle.classList.remove('active');
-    document.body.style.userSelect='';
-  });
 }
 
 // ── Panic ─────────────────────────────────────────────────────────────────────
@@ -479,10 +441,99 @@ function panic(){
   panicNow();
 }
 function panicNow(){
-  const flash=document.getElementById('panic-flash');
-  flash.style.opacity='1';
-  setTimeout(()=>{ window.location.href='/'; },80);
+  // No animation — instant redirect to /decoy (always serves decoy regardless of auth)
+  window.location.href='/decoy';
 }
+
+// ── Floating iframe window ────────────────────────────────────────────────────
+function setupIframeWindow(){
+  const win=document.getElementById('iframe-win');
+  const titlebar=document.getElementById('iframe-titlebar');
+
+  // Default size & position (right side, 60% width)
+  const setDefault=()=>{
+    const vw=window.innerWidth, vh=window.innerHeight;
+    win.style.width=Math.round(vw*0.6)+'px';
+    win.style.height=Math.round(vh*0.85)+'px';
+    win.style.left=Math.round(vw*0.38)+'px';
+    win.style.top=Math.round(vh*0.07)+'px';
+  };
+  setDefault();
+
+  // Drag to move
+  let dragging=false, dragOffX=0, dragOffY=0;
+  titlebar.addEventListener('mousedown',e=>{
+    if(e.target.closest('button')) return;
+    dragging=true; dragOffX=e.clientX-win.offsetLeft; dragOffY=e.clientY-win.offsetTop;
+    document.body.style.userSelect='none';
+    document.body.style.cursor='move';
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!dragging) return;
+    win.style.left=Math.max(0,Math.min(window.innerWidth-80,e.clientX-dragOffX))+'px';
+    win.style.top= Math.max(0,Math.min(window.innerHeight-40,e.clientY-dragOffY))+'px';
+  });
+  document.addEventListener('mouseup',()=>{
+    if(dragging){ dragging=false; document.body.style.userSelect=''; document.body.style.cursor=''; }
+  });
+
+  // Resize handles
+  let resizing=false, resizeDir='', resX=0, resY=0, resW=0, resH=0, resL=0, resT=0;
+  win.querySelectorAll('.rh').forEach(handle=>{
+    handle.addEventListener('mousedown',e=>{
+      e.stopPropagation(); resizing=true; resizeDir=handle.dataset.dir;
+      resX=e.clientX; resY=e.clientY;
+      resW=win.offsetWidth; resH=win.offsetHeight;
+      resL=win.offsetLeft; resT=win.offsetTop;
+      document.body.style.userSelect='none';
+    });
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!resizing) return;
+    const dx=e.clientX-resX, dy=e.clientY-resY;
+    let {left,top,width,height}={left:resL,top:resT,width:resW,height:resH};
+    const minW=320, minH=240;
+    if(resizeDir.includes('e')) width=Math.max(minW,resW+dx);
+    if(resizeDir.includes('s')) height=Math.max(minH,resH+dy);
+    if(resizeDir.includes('w')){ width=Math.max(minW,resW-dx); left=resL+resW-width; }
+    if(resizeDir.includes('n')){ height=Math.max(minH,resH-dy); top=resT+resH-height; }
+    win.style.width=width+'px'; win.style.height=height+'px';
+    win.style.left=left+'px';   win.style.top=top+'px';
+  });
+  document.addEventListener('mouseup',()=>{
+    if(resizing){ resizing=false; document.body.style.userSelect=''; }
+  });
+}
+
+function snapWin(pos){
+  const win=document.getElementById('iframe-win');
+  const vw=window.innerWidth, vh=window.innerHeight;
+  if(pos==='left'){
+    win.style.left='0'; win.style.top='0';
+    win.style.width=Math.round(vw/2)+'px'; win.style.height=vh+'px';
+  } else if(pos==='right'){
+    win.style.width=Math.round(vw/2)+'px'; win.style.height=vh+'px';
+    win.style.left=Math.round(vw/2)+'px'; win.style.top='0';
+  } else if(pos==='full'){
+    win.style.left='0'; win.style.top='0';
+    win.style.width=vw+'px'; win.style.height=vh+'px';
+  } else if(pos==='center'){
+    win.style.width=Math.round(vw*0.6)+'px'; win.style.height=Math.round(vh*0.8)+'px';
+    win.style.left=Math.round(vw*0.2)+'px'; win.style.top=Math.round(vh*0.1)+'px';
+  }
+}
+
+function openIframe(url,title){
+  iframeUrl=url;
+  document.getElementById('iframe-title').textContent=title||url;
+  document.getElementById('iframe-el').src=url;
+  document.getElementById('iframe-win').classList.add('open');
+}
+function closeIframe(){
+  document.getElementById('iframe-win').classList.remove('open');
+  setTimeout(()=>{ document.getElementById('iframe-el').src='about:blank'; },300);
+}
+function openIframeInTab(){ if(iframeUrl)window.open(iframeUrl,'_blank'); }
 
 // ── Edit password gate ────────────────────────────────────────────────────────
 function withEditAuth(fn){
@@ -493,16 +544,13 @@ function withEditAuth(fn){
   document.getElementById('edit-pw-err').textContent='';
   openModal('edit-pw');
 }
-function submitEditPw(){
+async function submitEditPw(){
   const pw=document.getElementById('edit-pw-input').value;
-  // Test against server
-  fetch('/api/sites',{method:'POST',headers:{'Content-Type':'application/json','x-edit-password':pw},body:JSON.stringify({__test:1})})
-    .then(r=>{
-      if(r.status===403){ document.getElementById('edit-pw-err').textContent='✕ Wrong edit password'; return; }
-      editPwCached=pw;
-      closeModal('edit-pw');
-      if(editPwQueue){ editPwQueue(pw); editPwQueue=null; }
-    });
+  const r=await fetch('/api/sites',{method:'POST',headers:{'Content-Type':'application/json','x-edit-password':pw},body:JSON.stringify({__test:1})});
+  if(r.status===403){ document.getElementById('edit-pw-err').textContent='✕ Wrong edit password'; return; }
+  editPwCached=pw;
+  closeModal('edit-pw');
+  if(editPwQueue){ editPwQueue(pw); editPwQueue=null; }
 }
 
 // ── Sites ─────────────────────────────────────────────────────────────────────
@@ -530,10 +578,12 @@ function renderSites(){
   document.getElementById('site-count').textContent=f.length+' / '+sites.length+' sites';
   const g=document.getElementById('grid');
   if(!f.length){ g.innerHTML='<div class="empty">No sites match.</div>'; return; }
-  const canEdit = authLevel==='full';
+  const canEdit=authLevel==='full';
   g.innerHTML=f.map((s,i)=>`
-    <div class="card${s.compat?' compat-mode':''}" id="card-${s.id}" ${canEdit?'draggable="true" ondragstart="dragStart(event,'+s.id+')" ondragover="dragOver(event,'+s.id+')" ondragleave="dragLeave('+s.id+')" ondrop="dragDrop(event,'+s.id+')"':''} style="animation-delay:${i*.04}s">
-      ${s.compat?'<span class="card-compat-badge">⚡COMPAT</span>':''}
+    <div class="card${s.compat?' compat-mode':''}" id="card-${s.id}"
+      ${canEdit?`draggable="true" ondragstart="dragStart(event,${s.id})" ondragover="dragOver(event,${s.id})" ondragleave="dragLeave(${s.id})" ondrop="dragDrop(event,${s.id})"`:''}
+      style="animation-delay:${i*.04}s">
+      ${s.compat?'<span class="card-compat-badge">⚡ COMPAT</span>':''}
       <span class="card-num">${i+1}</span>
       <div class="card-icon">${s.icon||'🌐'}</div>
       <div class="card-name">${esc(s.name)}</div>
@@ -543,7 +593,7 @@ function renderSites(){
         <button class="open-btn"  onclick="openSite(${s.id},'tab')">Open →</button>
         <button class="frame-btn" onclick="openSite(${s.id},'frame')">⊡</button>
         ${canEdit?`<button class="edit-btn" onclick="editSite(${s.id})">✎</button>
-        <button class="del-btn"  onclick="delSite(${s.id})">✕</button>`:''}
+        <button class="del-btn"   onclick="delSite(${s.id})">✕</button>`:''}
       </div>
     </div>`).join('');
 }
@@ -557,7 +607,7 @@ async function addSite(){
     const compat=document.getElementById('newCompat').checked;
     if(!name||!url) return toast('⚠ Name and URL required');
     const r=await fetch('/api/sites',{method:'POST',headers:{'Content-Type':'application/json','x-edit-password':pw},body:JSON.stringify({name,url,icon,tags,compat})});
-    if(!r.ok){const e=await r.json();return toast('⚠ '+e.error);}
+    if(!r.ok){ const e=await r.json(); return toast('⚠ '+e.error); }
     sites.push(await r.json());
     ['newName','newUrl','newIcon','newTags'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newCompat').checked=false;
@@ -575,7 +625,6 @@ function editSite(id){
   document.getElementById('edit-compat').checked=!!s.compat;
   openModal('edit');
 }
-
 async function saveEdit(){
   const icon=document.getElementById('edit-icon').value.trim();
   const name=document.getElementById('edit-name').value.trim();
@@ -585,13 +634,12 @@ async function saveEdit(){
   if(!name||!url) return toast('⚠ Name and URL required');
   withEditAuth(async pw=>{
     const r=await fetch('/api/sites/'+editingId,{method:'PUT',headers:{'Content-Type':'application/json','x-edit-password':pw},body:JSON.stringify({name,url,icon,tags,compat})});
-    if(!r.ok){const e=await r.json();return toast('⚠ '+e.error);}
+    if(!r.ok){ const e=await r.json(); return toast('⚠ '+e.error); }
     const updated=await r.json();
     sites=sites.map(s=>s.id===editingId?updated:s);
     renderTags(); renderSites(); closeModal('edit'); toast('✓ Updated');
   });
 }
-
 function delSite(id){
   withEditAuth(async pw=>{
     await fetch('/api/sites/'+id,{method:'DELETE',headers:{'x-edit-password':pw}});
@@ -609,7 +657,7 @@ async function dragDrop(e,tgt){
   document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over','dragging'));
   if(dragSrcId===tgt)return;
   const si=sites.findIndex(s=>s.id===dragSrcId), ti=sites.findIndex(s=>s.id===tgt);
-  const r=[...sites]; const[m]=r.splice(si,1); r.splice(ti,0,m); sites=r;
+  const arr=[...sites]; const[m]=arr.splice(si,1); arr.splice(ti,0,m); sites=arr;
   renderSites();
   withEditAuth(async pw=>{
     await fetch('/api/reorder',{method:'POST',headers:{'Content-Type':'application/json','x-edit-password':pw},body:JSON.stringify({ids:sites.map(s=>s.id)})});
@@ -630,63 +678,50 @@ function renderHist(){
 async function trackVisit(s){
   await fetch('/api/history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:s.name,url:s.url,icon:s.icon||'🌐'})});
   hist=hist.filter(h=>h.url!==s.url);
-  hist.unshift({name:s.name,url:s.url,icon:s.icon||'🌐'});
-  hist=hist.slice(0,20); renderHist();
+  hist.unshift({name:s.name,url:s.url,icon:s.icon||'🌐'}); hist=hist.slice(0,20); renderHist();
 }
-function openHistItem(url,name,icon){
-  trackVisit({name,url,icon});
-  window.open('/proxy?url='+encodeURIComponent(url),'_blank');
-}
-async function clearHistory(){
-  await fetch('/api/history',{method:'DELETE'});
-  hist=[]; renderHist(); toast('History cleared');
-}
+function openHistItem(url,name,icon){ trackVisit({name,url,icon}); window.open('/proxy?url='+encodeURIComponent(url),'_blank'); }
+async function clearHistory(){ await fetch('/api/history',{method:'DELETE'}); hist=[]; renderHist(); toast('History cleared'); }
 
-// ── Open / iframe ─────────────────────────────────────────────────────────────
+// ── Open site ─────────────────────────────────────────────────────────────────
 function openSite(id,mode){
   const s=sites.find(x=>x.id===id); if(!s)return;
   trackVisit(s);
-  const qs=s.compat?'&nojs=1':'';
-  const p='/proxy?url='+encodeURIComponent(s.url)+qs;
+  const p='/proxy?url='+encodeURIComponent(s.url)+(s.compat?'&nojs=1':'');
   if(mode==='frame') openIframe(p,s.name);
   else window.open(p,'_blank');
 }
-function openIframe(url,title){
-  iframeUrl=url;
-  document.getElementById('iframe-title').textContent=title||url;
-  document.getElementById('iframe-el').src=url;
-  document.getElementById('iframe-panel').classList.add('open');
-}
-function closeIframe(){
-  document.getElementById('iframe-panel').classList.remove('open');
-  setTimeout(()=>{ document.getElementById('iframe-el').src='about:blank'; },300);
-}
-function openIframeInTab(){ if(iframeUrl)window.open(iframeUrl,'_blank'); }
-
 function quickGo(mode){
   let url=document.getElementById('quickUrl').value.trim();
   if(!url)return;
   if(!url.startsWith('http'))url='https://'+url;
   const p='/proxy?url='+encodeURIComponent(url);
-  if(mode==='frame')openIframe(p,url);
+  if(mode==='frame') openIframe(p,url);
   else window.open(p,'_blank');
 }
 
 // ── Guest link ────────────────────────────────────────────────────────────────
-async function genGuestLink(){
-  const r=await fetch('/api/guest-link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({minutes:15})});
-  if(!r.ok){ toast('⚠ Full login required to generate links'); return; }
-  const d=await r.json();
-  const box=document.getElementById('guest-link-box');
-  box.style.display='';
-  box.textContent=d.url+' (expires in '+d.expiresIn+' min)';
-  toast('✓ Guest link ready — expires in '+d.expiresIn+' min');
+function genGuestLink(){
+  withEditAuth(async pw=>{
+    const minutes=parseInt(document.getElementById('guest-mins').value)||15;
+    const r=await fetch('/api/guest-link',{method:'POST',headers:{'Content-Type':'application/json','x-edit-password':pw},body:JSON.stringify({minutes})});
+    if(!r.ok){ toast('⚠ Could not generate link'); return; }
+    const d=await r.json();
+    lastGuestLink=d.url;
+    document.getElementById('guest-link-output').style.display='';
+    document.getElementById('guest-link-info').textContent='⏱ Expires in '+d.expiresIn+' min — read-only access';
+    document.getElementById('guest-link-url').textContent=d.url;
+    toast('✓ Guest link generated ('+d.expiresIn+' min)');
+  });
+}
+function copyGuestLink(){
+  if(!lastGuestLink)return;
+  navigator.clipboard.writeText(lastGuestLink).then(()=>toast('✓ Copied!'));
 }
 
-// ── Collapsible ───────────────────────────────────────────────────────────────
+// ── Collapsible sections ──────────────────────────────────────────────────────
 function toggleSec(bodyId,toggleId){
-  const body=document.getElementById(bodyId);
-  const btn=document.getElementById(toggleId);
+  const body=document.getElementById(bodyId), btn=document.getElementById(toggleId);
   const hidden=body.style.display==='none';
   body.style.display=hidden?'':'none';
   btn.textContent=hidden?'▾':'▸';
@@ -701,13 +736,13 @@ function setupShortcuts(){
   document.addEventListener('keydown',e=>{
     const tag=document.activeElement.tagName.toLowerCase();
     const typing=tag==='input'||tag==='textarea';
+    if((e.key==='p'||e.key==='P')&&!typing){ panic(); return; }
     if(e.key==='Escape'){
-      if(document.querySelector('.overlay.open'))document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));
-      else if(document.getElementById('iframe-panel').classList.contains('open'))closeIframe();
-      else if(searchQuery){document.getElementById('search').value='';onSearch('');}
+      if(document.querySelector('.overlay.open')) document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));
+      else if(document.getElementById('iframe-win').classList.contains('open')) closeIframe();
+      else if(searchQuery){ document.getElementById('search').value=''; onSearch(''); }
       return;
     }
-    if(e.key==='p'||e.key==='P'){ if(!typing){ panic(); return; } }
     if(typing)return;
     if(e.key==='/')      { e.preventDefault(); document.getElementById('search').focus(); }
     else if(e.key==='n') { const b=document.getElementById('add-body'); if(b.style.display==='none')toggleSec('add-body','add-tog'); document.getElementById('newName').focus(); }
@@ -720,13 +755,8 @@ function setupShortcuts(){
   document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o)o.classList.remove('open'); }));
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
 let toastTimer;
-function toast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600);
-}
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 init();
