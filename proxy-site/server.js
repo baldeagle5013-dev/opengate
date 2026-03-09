@@ -9,8 +9,6 @@ const http = require('http');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// On Render, use the persistent disk mount path so sites.json survives redeploys.
-// Locally (no RENDER_DISK_PATH set) it falls back to the project root.
 const DATA_DIR = process.env.RENDER_DISK_PATH || __dirname;
 const SITES_FILE = path.join(DATA_DIR, 'sites.json');
 
