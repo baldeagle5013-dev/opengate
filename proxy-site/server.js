@@ -5,227 +5,256 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const http = require('http');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// __dirname is read-only on Render after build, so fall back to /tmp
-const DATA_DIR = process.env.RENDER_DISK_PATH || (process.env.NODE_ENV === 'production' ? '/tmp' : __dirname);
-const SITES_FILE = path.join(DATA_DIR, 'sites.json');
+// ── Config ─────────────────────────────────────────────────────────────────────
+const APP_PASSWORD = process.env.APP_PASSWORD || 'changeme123';
+const SECRET_KEY   = process.env.SECRET_KEY   || 'opensesame';
+const HMAC_KEY     = process.env.HMAC_KEY     || 'default-hmac-key-please-change';
+const DATA_FILE    = path.join(__dirname, 'data.json');
 
-// ── Middleware ────────────────────────────────────────────────────────────────
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// ── Sites storage helpers ─────────────────────────────────────────────────────
-function loadSites() {
-  if (!fs.existsSync(SITES_FILE)) {
-    const defaults = [
-      { id: 1, name: 'Wikipedia', url: 'https://en.wikipedia.org', icon: '📚' },
-      { id: 2, name: 'Khan Academy', url: 'https://www.khanacademy.org', icon: '🎓' },
-      { id: 3, name: 'GitHub', url: 'https://github.com', icon: '🐙' },
-    ];
-    try { fs.writeFileSync(SITES_FILE, JSON.stringify(defaults, null, 2)); } catch(e) { console.error('Could not write sites.json:', e.message); }
+// ── Data ───────────────────────────────────────────────────────────────────────
+function loadData() {
+  if (!fs.existsSync(DATA_FILE)) {
+    const defaults = {
+      sites: [
+        { id: 1, name: 'Wikipedia',    url: 'https://en.wikipedia.org',      icon: '📚', tags: ['school'] },
+        { id: 2, name: 'Khan Academy', url: 'https://www.khanacademy.org',   icon: '🎓', tags: ['school'] },
+        { id: 3, name: 'GitHub',       url: 'https://github.com',            icon: '🐙', tags: ['dev'] },
+        { id: 4, name: 'Reddit',       url: 'https://www.reddit.com',        icon: '🤖', tags: ['social'] },
+        { id: 5, name: 'YouTube',      url: 'https://www.youtube.com',       icon: '▶️', tags: ['social'] },
+      ],
+      history: [],
+    };
+    fs.writeFileSync(DATA_FILE, JSON.stringify(defaults, null, 2));
     return defaults;
   }
-  return JSON.parse(fs.readFileSync(SITES_FILE, 'utf8'));
+  try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); }
+  catch { return { sites: [], history: [] }; }
 }
 
-function saveSites(sites) {
-  try { fs.writeFileSync(SITES_FILE, JSON.stringify(sites, null, 2)); } catch(e) { console.error('Could not save sites.json:', e.message); }
+function saveData(data) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
-// ── Sites API ─────────────────────────────────────────────────────────────────
-app.get('/api/sites', (req, res) => {
-  res.json(loadSites());
+// ── Auth ───────────────────────────────────────────────────────────────────────
+function makeToken() {
+  return crypto.createHmac('sha256', HMAC_KEY).update(APP_PASSWORD).digest('hex');
+}
+
+function parseCookies(req) {
+  return Object.fromEntries(
+    (req.headers.cookie || '').split(';').map(p => {
+      const [k, ...v] = p.trim().split('=');
+      return [k.trim(), decodeURIComponent(v.join('=').trim())];
+    }).filter(([k]) => k)
+  );
+}
+
+function isAuth(req) { return parseCookies(req).auth === makeToken(); }
+
+function requireAuth(req, res, next) {
+  if (isAuth(req)) return next();
+  if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'Unauthorized' });
+  res.redirect('/');
+}
+
+app.use(express.json());
+
+// ── Public routes ──────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  if (req.query.key === SECRET_KEY) {
+    res.setHeader('Set-Cookie', `auth=${makeToken()}; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800`);
+    return res.redirect('/dashboard');
+  }
+  if (isAuth(req)) return res.redirect('/dashboard');
+  res.sendFile(path.join(__dirname, 'public', 'decoy.html'));
 });
 
-app.post('/api/sites', (req, res) => {
-  const { name, url, icon } = req.body;
-  if (!name || !url) return res.status(400).json({ error: 'Name and URL required' });
+app.get('/login', (req, res) => {
+  if (isAuth(req)) return res.redirect('/dashboard');
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 
-  const sites = loadSites();
+app.post('/api/login', (req, res) => {
+  if (req.body.password === APP_PASSWORD) {
+    res.setHeader('Set-Cookie', `auth=${makeToken()}; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800`);
+    return res.json({ ok: true });
+  }
+  res.status(401).json({ error: 'Wrong password' });
+});
+
+app.get('/logout', (req, res) => {
+  res.setHeader('Set-Cookie', 'auth=; Path=/; Max-Age=0');
+  res.redirect('/');
+});
+
+// ── Protected routes ───────────────────────────────────────────────────────────
+app.get('/dashboard', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Sites
+app.get('/api/sites', requireAuth, (req, res) => res.json(loadData().sites));
+
+app.post('/api/sites', requireAuth, (req, res) => {
+  const { name, url, icon, tags } = req.body;
+  if (!name || !url) return res.status(400).json({ error: 'Name and URL required' });
+  const data = loadData();
   const newSite = {
     id: Date.now(),
     name: name.trim(),
     url: url.startsWith('http') ? url.trim() : 'https://' + url.trim(),
     icon: icon || '🌐',
+    tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : []),
   };
-  sites.push(newSite);
-  saveSites(sites);
+  data.sites.push(newSite);
+  saveData(data);
   res.json(newSite);
 });
 
-app.delete('/api/sites/:id', (req, res) => {
-  const sites = loadSites().filter(s => s.id !== parseInt(req.params.id));
-  saveSites(sites);
+app.put('/api/sites/:id', requireAuth, (req, res) => {
+  const data = loadData();
+  const idx = data.sites.findIndex(s => s.id === parseInt(req.params.id));
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  const { name, url, icon, tags } = req.body;
+  data.sites[idx] = {
+    ...data.sites[idx],
+    ...(name !== undefined && { name: name.trim() }),
+    ...(url !== undefined && { url: url.startsWith('http') ? url.trim() : 'https://' + url.trim() }),
+    ...(icon !== undefined && { icon }),
+    ...(tags !== undefined && { tags: Array.isArray(tags) ? tags : tags.split(',').map(t => t.trim()).filter(Boolean) }),
+  };
+  saveData(data);
+  res.json(data.sites[idx]);
+});
+
+app.delete('/api/sites/:id', requireAuth, (req, res) => {
+  const data = loadData();
+  data.sites = data.sites.filter(s => s.id !== parseInt(req.params.id));
+  saveData(data);
   res.json({ ok: true });
 });
 
-// ── Proxy engine ──────────────────────────────────────────────────────────────
+app.post('/api/reorder', requireAuth, (req, res) => {
+  const { ids } = req.body;
+  const data = loadData();
+  const map = Object.fromEntries(data.sites.map(s => [s.id, s]));
+  data.sites = ids.map(id => map[id]).filter(Boolean);
+  saveData(data);
+  res.json({ ok: true });
+});
 
-// Resolve a potentially-relative URL against a base
+// History
+app.get('/api/history',  requireAuth, (req, res) => res.json(loadData().history || []));
+
+app.post('/api/history', requireAuth, (req, res) => {
+  const { name, url, icon } = req.body;
+  const data = loadData();
+  if (!data.history) data.history = [];
+  data.history = data.history.filter(h => h.url !== url);
+  data.history.unshift({ name, url, icon: icon || '🌐', visitedAt: Date.now() });
+  data.history = data.history.slice(0, 20);
+  saveData(data);
+  res.json({ ok: true });
+});
+
+app.delete('/api/history', requireAuth, (req, res) => {
+  const data = loadData();
+  data.history = [];
+  saveData(data);
+  res.json({ ok: true });
+});
+
+// ── Proxy helpers ──────────────────────────────────────────────────────────────
 function resolveUrl(base, relative) {
-  try {
-    return new URL(relative, base).href;
-  } catch {
-    return relative;
-  }
+  try { return new URL(relative, base).href; } catch { return relative; }
 }
 
-// Rewrite a URL so it routes through our /proxy endpoint
-function wrapUrl(targetUrl, baseUrl) {
+function wrapUrl(url, baseUrl) {
   try {
-    const resolved = resolveUrl(baseUrl, targetUrl);
+    const resolved = resolveUrl(baseUrl, url);
     if (resolved.startsWith('http://') || resolved.startsWith('https://')) {
       return '/proxy?url=' + encodeURIComponent(resolved);
     }
   } catch {}
-  return targetUrl;
+  return url;
 }
 
-// Rewrite HTML so all links/resources go through the proxy
 function rewriteHtml(html, baseUrl) {
   const $ = cheerio.load(html, { decodeEntities: false });
-
-  // Links & redirects
   $('a[href]').each((_, el) => {
     const href = $(el).attr('href');
-    if (href && !href.startsWith('#') && !href.startsWith('javascript:') && !href.startsWith('mailto:')) {
+    if (href && !href.startsWith('#') && !href.startsWith('javascript:') && !href.startsWith('mailto:'))
       $(el).attr('href', wrapUrl(href, baseUrl));
-    }
   });
-
-  // Scripts
-  $('script[src]').each((_, el) => {
-    $(el).attr('src', wrapUrl($(el).attr('src'), baseUrl));
-  });
-
-  // Stylesheets
-  $('link[rel="stylesheet"][href]').each((_, el) => {
-    $(el).attr('href', wrapUrl($(el).attr('href'), baseUrl));
-  });
-
-  // Images
-  $('img[src]').each((_, el) => {
-    $(el).attr('src', wrapUrl($(el).attr('src'), baseUrl));
-  });
+  $('script[src]').each((_, el) => $(el).attr('src', wrapUrl($(el).attr('src'), baseUrl)));
+  $('link[rel="stylesheet"][href]').each((_, el) => $(el).attr('href', wrapUrl($(el).attr('href'), baseUrl)));
+  $('img[src]').each((_, el) => $(el).attr('src', wrapUrl($(el).attr('src'), baseUrl)));
   $('img[srcset]').each((_, el) => {
-    const srcset = $(el).attr('srcset').split(',').map(s => {
+    $(el).attr('srcset', $(el).attr('srcset').split(',').map(s => {
       const parts = s.trim().split(/\s+/);
       if (parts[0]) parts[0] = wrapUrl(parts[0], baseUrl);
       return parts.join(' ');
-    }).join(', ');
-    $(el).attr('srcset', srcset);
+    }).join(', '));
   });
-
-  // Forms
-  $('form[action]').each((_, el) => {
-    $(el).attr('action', wrapUrl($(el).attr('action'), baseUrl));
-  });
-
-  // iframes
-  $('iframe[src]').each((_, el) => {
-    $(el).attr('src', wrapUrl($(el).attr('src'), baseUrl));
-  });
-
-  // Meta refresh
-  $('meta[http-equiv="refresh"]').each((_, el) => {
-    const content = $(el).attr('content') || '';
-    const match = content.match(/^(\d+;\s*url=)(.+)$/i);
-    if (match) {
-      $(el).attr('content', match[1] + wrapUrl(match[2], baseUrl));
-    }
-  });
-
-  // Inject a small banner so you know you're proxied
+  $('form[action]').each((_, el) => $(el).attr('action', wrapUrl($(el).attr('action'), baseUrl)));
+  $('iframe[src]').each((_, el) => $(el).attr('src', wrapUrl($(el).attr('src'), baseUrl)));
   $('body').prepend(`
-    <div id="__proxy_bar__" style="
-      position:fixed;top:0;left:0;right:0;z-index:2147483647;
+    <div style="position:fixed;top:0;left:0;right:0;z-index:2147483647;
       background:#0d0d0d;color:#39ff14;font-family:monospace;font-size:12px;
       padding:5px 14px;display:flex;align-items:center;justify-content:space-between;
-      border-bottom:1px solid #39ff1444;box-shadow:0 2px 12px #39ff1422;
-    ">
+      border-bottom:1px solid #39ff1444;">
       <span>⚡ PROXIED: <b style="color:#fff">${baseUrl}</b></span>
-      <a href="/" style="color:#39ff14;text-decoration:none;font-weight:bold;">← Dashboard</a>
-    </div>
-    <div style="height:32px"></div>
-  `);
-
+      <a href="/dashboard" style="color:#39ff14;text-decoration:none;font-weight:bold;">← Dashboard</a>
+    </div><div style="height:32px"></div>`);
   return $.html();
 }
 
-// Rewrite CSS urls() to go through proxy
 function rewriteCss(css, baseUrl) {
-  return css.replace(/url\(['"]?([^'")]+)['"]?\)/g, (match, url) => {
-    if (url.startsWith('data:')) return match;
-    return `url('${wrapUrl(url, baseUrl)}')`;
-  });
+  return css.replace(/url\(['"]?([^'")]+)['"]?\)/g, (m, u) =>
+    u.startsWith('data:') ? m : `url('${wrapUrl(u, baseUrl)}')`
+  );
 }
 
-// Main proxy route
-app.get('/proxy', async (req, res) => {
+app.get('/proxy', requireAuth, async (req, res) => {
   const targetUrl = req.query.url;
-  if (!targetUrl) return res.status(400).send('Missing ?url= parameter');
-
+  if (!targetUrl) return res.status(400).send('Missing ?url=');
   let parsedUrl;
-  try {
-    parsedUrl = new URL(targetUrl);
-  } catch {
-    return res.status(400).send('Invalid URL');
-  }
-
+  try { parsedUrl = new URL(targetUrl); } catch { return res.status(400).send('Invalid URL'); }
   try {
     const agent = parsedUrl.protocol === 'https:'
-      ? new https.Agent({ rejectUnauthorized: false })
-      : new http.Agent();
-
+      ? new https.Agent({ rejectUnauthorized: false }) : new http.Agent();
     const response = await fetch(targetUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'identity',
         'Referer': parsedUrl.origin,
       },
-      redirect: 'follow',
-      agent,
+      redirect: 'follow', agent,
     });
-
-    const contentType = response.headers.get('content-type') || '';
-
-    // Strip security headers that break framing/proxying
-    const skipHeaders = ['content-security-policy', 'x-frame-options', 'strict-transport-security', 'content-encoding'];
-    for (const [key, value] of response.headers.entries()) {
-      if (!skipHeaders.includes(key.toLowerCase())) {
-        try { res.setHeader(key, value); } catch {}
-      }
-    }
-    res.setHeader('content-type', contentType);
-
-    if (contentType.includes('text/html')) {
-      const html = await response.text();
-      res.send(rewriteHtml(html, response.url || targetUrl));
-    } else if (contentType.includes('text/css')) {
-      const css = await response.text();
-      res.send(rewriteCss(css, response.url || targetUrl));
-    } else {
-      // Binary / other — pipe straight through
-      response.body.pipe(res);
-    }
+    const ct = response.headers.get('content-type') || '';
+    const skip = ['content-security-policy','x-frame-options','strict-transport-security','content-encoding'];
+    for (const [k, v] of response.headers.entries())
+      if (!skip.includes(k.toLowerCase())) try { res.setHeader(k, v); } catch {}
+    res.setHeader('content-type', ct);
+    if (ct.includes('text/html'))      res.send(rewriteHtml(await response.text(), response.url || targetUrl));
+    else if (ct.includes('text/css'))  res.send(rewriteCss(await response.text(), response.url || targetUrl));
+    else                               response.body.pipe(res);
   } catch (err) {
-    console.error('Proxy error:', err.message);
-    res.status(502).send(`
-      <html><body style="background:#0d0d0d;color:#ff4444;font-family:monospace;padding:40px">
-        <h2>⚠ Proxy Error</h2>
-        <p>${err.message}</p>
-        <p><a href="/" style="color:#39ff14">← Back to Dashboard</a></p>
-      </body></html>
-    `);
+    res.status(502).send(`<html><body style="background:#0d0d0d;color:#ff4444;font-family:monospace;padding:40px">
+      <h2>⚠ Proxy Error</h2><p>${err.message}</p>
+      <p><a href="/dashboard" style="color:#39ff14">← Dashboard</a></p></body></html>`);
   }
 });
 
-// ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n⚡ Proxy Dashboard running → http://0.0.0.0:${PORT}\n`);
+  console.log(`\n⚡ OpenGate running → http://0.0.0.0:${PORT}`);
+  console.log(`   Quick access: /?key=${SECRET_KEY}`);
+  console.log(`   Login page:   /login\n`);
 });
