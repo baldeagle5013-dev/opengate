@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenGate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#080c10;color:#c8d8e8;font-family:'Space Mono',monospace;display:flex;align-items:center;justify-content:center;min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(#1e2d3d 1px,transparent 1px),linear-gradient(90deg,#1e2d3d 1px,transparent 1px);background-size:40px 40px;opacity:.25;z-index:0}
+    .box{position:relative;z-index:1;background:#0e1419;border:1px solid #1e2d3d;border-radius:12px;padding:40px;width:100%;max-width:380px}
+    .logo-tag{font-size:10px;color:#39ff14;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px}
+    .logo{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:#fff;margin-bottom:32px}
+    .logo span{color:#39ff14}
+    input{display:block;width:100%;background:#080c10;border:1px solid #1e2d3d;color:#c8d8e8;font-family:'Space Mono',monospace;font-size:14px;padding:13px 16px;border-radius:6px;outline:none;transition:border-color .2s;margin-bottom:12px}
+    input:focus{border-color:#39ff14}
+    input::placeholder{color:#4a6070}
+    button{width:100%;background:#39ff14;color:#000;border:none;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;padding:13px;border-radius:6px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:filter .15s}
+    button:hover{filter:brightness(1.15)}
+    #err{color:#ff3b5c;font-size:12px;margin-top:12px;min-height:18px}
+    .hint{font-size:10px;color:#4a6070;margin-top:20px;line-height:1.6}
+  </style>
+</head>
+<body>
+<div class="box">
+  <div class="logo-tag">// access gateway</div>
+  <div class="logo">OPEN<span>GATE</span></div>
+  <input type="password" id="pw" placeholder="Enter password" autofocus />
+  <button onclick="login()">Access →</button>
+  <div id="err"></div>
+  <div class="hint">Tip: bookmark <code>/?key=YOUR_SECRET_KEY</code> for instant access without typing a password.</div>
+</div>
+<script>
+  async function login(){
+    const pw=document.getElementById('pw').value;
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    if(r.ok)window.location.href='/dashboard';
+    else document.getElementById('err').textContent='✕ Wrong password';
+  }
+  document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+</script>
+</body>
+</html>
