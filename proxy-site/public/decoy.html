@@ -111,3 +111,54 @@ Key formulas for quadratics:
 </script>
 </body>
 </html>
+
+<!-- Secret re-open keybind: Ctrl+Shift+G -->
+<div id="reopen-modal" style="display:none;position:fixed;inset:0;background:#00000090;backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#0e1419;border:1px solid #1e2d3d;border-radius:12px;padding:28px;max-width:340px;width:90%;font-family:'Space Mono',monospace">
+    <div style="font-size:10px;color:#39ff14;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px">// access gateway</div>
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:20px">OPEN<span style="color:#39ff14">GATE</span></div>
+    <input type="password" id="reopen-pw" placeholder="Password" style="width:100%;background:#080c10;border:1px solid #1e2d3d;color:#c8d8e8;font-family:'Space Mono',monospace;font-size:13px;padding:11px 14px;border-radius:6px;outline:none;margin-bottom:8px">
+    <div id="reopen-err" style="color:#ff3b5c;font-size:11px;min-height:16px;margin-bottom:10px"></div>
+    <button onclick="tryReopen()" style="width:100%;background:#39ff14;color:#000;border:none;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:11px;border-radius:6px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em">Unlock →</button>
+    <button onclick="closeReopen()" style="width:100%;background:transparent;border:1px solid #1e2d3d;color:#4a6070;font-family:'Space Mono',monospace;font-size:12px;padding:9px;border-radius:6px;cursor:pointer;margin-top:8px">Cancel</button>
+  </div>
+</div>
+
+<script>
+// Ctrl+Shift+G (or just hold G for 1s) shows the password prompt
+document.addEventListener('keydown', function(e) {
+  if((e.ctrlKey && e.shiftKey && (e.key==='g'||e.key==='G')) ||
+     (e.altKey && (e.key==='g'||e.key==='G'))) {
+    e.preventDefault();
+    showReopen();
+  }
+});
+
+// Also: type the word "open" anywhere on the page (invisible)
+let typeBuf='';
+document.addEventListener('keypress', function(e) {
+  typeBuf=(typeBuf+e.key).slice(-4);
+  if(typeBuf==='open') showReopen();
+});
+
+function showReopen(){
+  const m=document.getElementById('reopen-modal');
+  m.style.display='flex';
+  setTimeout(()=>document.getElementById('reopen-pw').focus(),50);
+}
+function closeReopen(){
+  document.getElementById('reopen-modal').style.display='none';
+  document.getElementById('reopen-pw').value='';
+  document.getElementById('reopen-err').textContent='';
+}
+async function tryReopen(){
+  const pw=document.getElementById('reopen-pw').value;
+  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+  if(r.ok){ window.location.href='/dashboard'; }
+  else { document.getElementById('reopen-err').textContent='✕ Wrong password'; }
+}
+document.getElementById('reopen-pw').addEventListener('keydown',function(e){
+  if(e.key==='Enter') tryReopen();
+  if(e.key==='Escape') closeReopen();
+});
+</script>
