@@ -134,6 +134,11 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
+// ── Always-decoy route (panic target) ────────────────────────────────────────
+app.get('/decoy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'decoy.html'));
+});
+
 // ── Protected: dashboard ──────────────────────────────────────────────────────
 app.get('/dashboard', requireAuth, (req, res) => {
   getUserId(req, res); // ensure uid cookie is set
@@ -224,7 +229,7 @@ app.delete('/api/history', requireAuth, (req, res) => {
 });
 
 // ── Guest links ───────────────────────────────────────────────────────────────
-app.post('/api/guest-link', requireAuth, (req, res) => {
+app.post('/api/guest-link', requireAuth, requireEditAuth, (req, res) => {
   if (req.authLevel !== 'full') return res.status(403).json({ error: 'Full auth required' });
   const minutes = parseInt(req.body.minutes) || 15;
   const token   = crypto.randomBytes(20).toString('hex');
@@ -267,7 +272,7 @@ function buildInjectedScript() {
   try {
     var bc = new BroadcastChannel('opengate');
     bc.onmessage = function(e){
-      if(e.data==='PANIC') window.top.location.href='/';
+      if(e.data==='PANIC') window.top.location.href='/decoy';
     };
   } catch(e){}
 
@@ -275,7 +280,7 @@ function buildInjectedScript() {
   document.addEventListener('keydown', function(e){
     if(e.key==='p'||e.key==='P'){
       try{ new BroadcastChannel('opengate').postMessage('PANIC'); }catch(e){}
-      window.top.location.href='/';
+      window.top.location.href='/decoy';
     }
   });
 
@@ -289,7 +294,7 @@ function buildInjectedScript() {
       clearTimeout(idleTimer);
       idleTimer = setTimeout(function(){
         try{ new BroadcastChannel('opengate').postMessage('PANIC'); }catch(e){}
-        window.top.location.href='/';
+        window.top.location.href='/decoy';
       }, idleMs);
     }
     ['mousemove','keydown','mousedown','touchstart','scroll'].forEach(function(ev){
