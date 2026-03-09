@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyFlow — Revision Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#f5f5f0;color:#333;font-family:'Inter',sans-serif;padding:24px}
+    .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:16px;border-bottom:1px solid #e0e0d8}
+    .title{font-size:20px;font-weight:600;color:#2a2a2a}
+    .title span{color:#5b7fa6}
+    .subtitle{font-size:12px;color:#888;margin-top:2px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px}
+    @media(max-width:600px){.grid{grid-template-columns:1fr}}
+    .card{background:#fff;border:1px solid #e8e8e0;border-radius:10px;padding:20px}
+    .card h3{font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
+    .timer-display{font-size:56px;font-weight:600;color:#2a2a2a;text-align:center;padding:16px 0;letter-spacing:-.02em}
+    .timer-btns{display:flex;gap:8px;justify-content:center}
+    .btn{padding:9px 20px;border-radius:6px;border:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer}
+    .btn-primary{background:#5b7fa6;color:#fff}
+    .btn-ghost{background:#f0f0ea;color:#555}
+    .tabs{display:flex;gap:4px;margin-bottom:16px}
+    .tab{padding:6px 14px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:#888}
+    .tab.active{background:#eef2f8;color:#5b7fa6}
+    .subject-list{list-style:none}
+    .subject-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0ea;font-size:14px}
+    .subject-item:last-child{border:none}
+    .subject-dot{width:8px;height:8px;border-radius:50%}
+    .subject-prog{flex:1;height:4px;background:#f0f0ea;border-radius:2px;overflow:hidden}
+    .subject-prog-fill{height:100%;border-radius:2px}
+    textarea{width:100%;border:1px solid #e8e8e0;border-radius:6px;padding:12px;font-family:'Inter',sans-serif;font-size:13px;resize:none;outline:none;color:#333;line-height:1.6;background:#fafaf8}
+    textarea:focus{border-color:#5b7fa6}
+    .today-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0ea;font-size:14px}
+    .today-item:last-child{border:none}
+    .check{width:16px;height:16px;border-radius:3px;border:1.5px solid #ccc;flex-shrink:0;cursor:pointer}
+    .check.done{background:#5b7fa6;border-color:#5b7fa6}
+    .today-text{color:#444}
+    .today-text.done-text{text-decoration:line-through;color:#aaa}
+  </style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="title">Study<span>Flow</span></div>
+    <div class="subtitle">Revision & Focus Timer</div>
+  </div>
+  <div style="font-size:13px;color:#888" id="dateline"></div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h3>Pomodoro Timer</h3>
+    <div class="tabs">
+      <button class="tab active" onclick="setMode(this,25,'Focus')">Focus</button>
+      <button class="tab" onclick="setMode(this,5,'Short Break')">Short Break</button>
+      <button class="tab" onclick="setMode(this,15,'Long Break')">Long Break</button>
+    </div>
+    <div class="timer-display" id="timer">25:00</div>
+    <div class="timer-btns">
+      <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">Start</button>
+      <button class="btn btn-ghost" onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Today's Tasks</h3>
+    <div id="task-list">
+      <div class="today-item"><div class="check done" onclick="toggleCheck(this)"></div><span class="today-text done-text">Read Chapter 4 — Biology</span></div>
+      <div class="today-item"><div class="check" onclick="toggleCheck(this)"></div><span class="today-text">Complete maths worksheet</span></div>
+      <div class="today-item"><div class="check" onclick="toggleCheck(this)"></div><span class="today-text">Review history notes</span></div>
+      <div class="today-item"><div class="check" onclick="toggleCheck(this)"></div><span class="today-text">English essay — first draft</span></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <input id="newTask" style="flex:1;padding:8px 10px;border:1px solid #e0e0d8;border-radius:5px;font-family:'Inter',sans-serif;font-size:13px;outline:none" placeholder="Add task…" />
+      <button class="btn btn-primary" style="padding:8px 14px" onclick="addTask()">+</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Subjects</h3>
+    <ul class="subject-list">
+      <li class="subject-item"><div class="subject-dot" style="background:#5b7fa6"></div><span style="flex:1">Mathematics</span><div class="subject-prog"><div class="subject-prog-fill" style="width:72%;background:#5b7fa6"></div></div><span style="font-size:12px;color:#888">72%</span></li>
+      <li class="subject-item"><div class="subject-dot" style="background:#72a65b"></div><span style="flex:1">Biology</span><div class="subject-prog"><div class="subject-prog-fill" style="width:55%;background:#72a65b"></div></div><span style="font-size:12px;color:#888">55%</span></li>
+      <li class="subject-item"><div class="subject-dot" style="background:#a67c5b"></div><span style="flex:1">History</span><div class="subject-prog"><div class="subject-prog-fill" style="width:40%;background:#a67c5b"></div></div><span style="font-size:12px;color:#888">40%</span></li>
+      <li class="subject-item"><div class="subject-dot" style="background:#9b5ba6"></div><span style="flex:1">English</span><div class="subject-prog"><div class="subject-prog-fill" style="width:88%;background:#9b5ba6"></div></div><span style="font-size:12px;color:#888">88%</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Notes</h3>
+    <textarea rows="8" placeholder="Write your revision notes here…">Mitosis phases: Prophase → Metaphase → Anaphase → Telophase
+
+Remember: PMAT acronym
+
+Key formulas for quadratics:
+  x = (-b ± √(b²-4ac)) / 2a</textarea>
+  </div>
+</div>
+
+<script>
+  document.getElementById('dateline').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  let secs=25*60,running=false,iv=null;
+  function setMode(el,mins,label){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');secs=mins*60;running=false;clearInterval(iv);document.getElementById('startBtn').textContent='Start';updateDisplay();}
+  function updateDisplay(){document.getElementById('timer').textContent=Math.floor(secs/60)+':'+(secs%60).toString().padStart(2,'0');}
+  function toggleTimer(){if(running){clearInterval(iv);running=false;document.getElementById('startBtn').textContent='Resume';}else{running=true;document.getElementById('startBtn').textContent='Pause';iv=setInterval(()=>{if(secs>0){secs--;updateDisplay();}else{clearInterval(iv);running=false;document.getElementById('startBtn').textContent='Start';}},1000);}}
+  function resetTimer(){clearInterval(iv);running=false;document.getElementById('startBtn').textContent='Start';const t=document.querySelector('.tab.active').textContent;secs=(t==='Focus'?25:t==='Short Break'?5:15)*60;updateDisplay();}
+  function toggleCheck(el){el.classList.toggle('done');const span=el.nextElementSibling;span.classList.toggle('done-text');}
+  function addTask(){const inp=document.getElementById('newTask');const txt=inp.value.trim();if(!txt)return;const div=document.createElement('div');div.className='today-item';div.innerHTML=`<div class="check" onclick="toggleCheck(this)"></div><span class="today-text">${txt}</span>`;document.getElementById('task-list').appendChild(div);inp.value='';}
+  document.getElementById('newTask').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+</script>
+</body>
+</html>
