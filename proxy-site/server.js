@@ -76,7 +76,7 @@ function getUserId(req, res) {
   const c = parseCookies(req);
   if (c.uid) return c.uid;
   const uid = crypto.randomBytes(12).toString('hex');
-  res.setHeader('Set-Cookie', `uid=${uid}; Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000`);
+  res.setHeader('Set-Cookie', `uid=${uid}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000`);
   return uid;
 }
 
@@ -85,13 +85,13 @@ app.use(express.json());
 // ── Public routes ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
   if (req.query.key === SECRET_KEY) {
-    res.setHeader('Set-Cookie', `auth=${makeToken()}; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800`);
+    res.setHeader('Set-Cookie', `auth=${makeToken()}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800`);
     return res.redirect('/dashboard');
   }
   if (req.query.guestToken) {
     const token = loadData().guestTokens?.[req.query.guestToken];
     if (token && token.expiresAt > Date.now()) {
-      res.setHeader('Set-Cookie', `guestToken=${req.query.guestToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=3600`);
+      res.setHeader('Set-Cookie', `guestToken=${req.query.guestToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`);
       return res.redirect('/dashboard');
     }
   }
@@ -105,7 +105,7 @@ app.get('/login', (req, res) => {
 });
 app.post('/api/login', (req, res) => {
   if (req.body.password === APP_PASSWORD) {
-    res.setHeader('Set-Cookie', `auth=${makeToken()}; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800`);
+    res.setHeader('Set-Cookie', `auth=${makeToken()}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800`);
     return res.json({ ok: true });
   }
   res.status(401).json({ error: 'Wrong password' });
@@ -240,6 +240,13 @@ app.post('/api/guest-link', requireAuth, requireEditAuth, (req, res) => {
 });
 
 app.get('/api/me', requireAuth, (req, res) => res.json({ level: req.authLevel }));
+
+// ── Clean edit-password validator (no side effects) ───────────────────────────
+app.post('/api/check-edit-pw', requireAuth, (req, res) => {
+  if (req.authLevel === 'guest') return res.status(403).json({ error: 'Guests cannot edit' });
+  if (req.headers['x-edit-password'] === EDIT_PASSWORD) return res.json({ ok: true });
+  res.status(403).json({ error: 'Wrong edit password' });
+});
 
 // ── Ad-block selector list ────────────────────────────────────────────────────
 const AD_SELECTORS = [
@@ -416,9 +423,10 @@ function storeCookies(data, uid, domain, setCookieHeaders) {
 // ── Proxy route ───────────────────────────────────────────────────────────────
 app.get('/proxy', requireAuth, async (req, res) => {
   const targetUrl = req.query.url;
-  const noJs   = req.query.nojs   === '1';
-  const noAd   = req.query.noad   !== '0'; // on by default; pass noad=0 to disable
-  const school  = req.query.school === '1';
+  const cookies2 = parseCookies(req);
+  const noJs    = req.query.nojs === '1';
+  const noAd    = cookies2.og_adblock !== '0';  // cookie: og_adblock=0 to disable, default on
+  const school   = cookies2.og_school === '1';  // cookie: og_school=1 for decoy mode
 
   if (!targetUrl) return res.status(400).send('Missing ?url=');
   let parsed;
