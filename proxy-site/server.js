@@ -81,6 +81,7 @@ function getUserId(req, res) {
 }
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // ── Public routes ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
@@ -99,6 +100,72 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'decoy.html'));
 });
 app.get('/decoy', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'decoy.html')));
+
+// ── Service Worker ────────────────────────────────────────────────────────────
+// Served from root so it has scope over the entire origin.
+// Intercepts ALL cross-origin fetch requests from proxied pages and routes them
+// through /proxy, making images, JS bundles, API calls etc. all work.
+app.get('/sw.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  const isAuthed = isAuth(req);
+  res.send(`
+/* OpenGate Service Worker — auto-proxies all external requests */
+var PROXY_ORIGIN = self.location.origin;
+var PROXY_PATH   = '/proxy?url=';
+
+self.addEventListener('install', function(e){
+  self.skipWaiting();
+});
+self.addEventListener('activate', function(e){
+  e.waitUntil(self.clients.claim());
+});
+self.addEventListener('message', function(e){
+  if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('fetch', function(event){
+  var req  = event.request;
+  var url  = req.url;
+
+  // ── Let same-origin requests through unchanged ──
+  // (dashboard, /api/, /proxy itself, /login, /decoy, /sw.js)
+  if(url.startsWith(PROXY_ORIGIN + '/')) return;
+
+  // ── Skip non-http/https ──
+  if(!url.startsWith('http://') && !url.startsWith('https://')) return;
+
+  // ── Route external request through proxy ──
+  var proxyUrl = PROXY_ORIGIN + PROXY_PATH + encodeURIComponent(url);
+
+  event.respondWith(
+    fetch(proxyUrl, {
+      credentials: 'include',
+      // Forward the original request's Accept header so the proxy can serve
+      // the right content-type (especially important for images vs HTML)
+      headers: {
+        'x-og-accept': req.headers.get('Accept') || '',
+        'x-og-method': req.method,
+      },
+      // For POST/PUT/PATCH, forward the body too (forms, API calls)
+      method: req.method === 'GET' || req.method === 'HEAD' ? req.method : 'GET',
+    })
+    .catch(function(){
+      // Return an empty transparent 1x1 GIF for failed image requests
+      // so broken image icons don't appear
+      if(req.headers.get('Accept') && req.headers.get('Accept').includes('image/')) {
+        return new Response(
+          atob('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'),
+          { headers: { 'Content-Type': 'image/gif' } }
+        );
+      }
+      return new Response('', { status: 204 });
+    })
+  );
+});
+`);
+});
 app.get('/login', (req, res) => {
   if (isAuth(req)) return res.redirect('/dashboard');
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
@@ -294,55 +361,74 @@ function rewriteCss(css, base) {
   return css;
 }
 
-// ── Client-side navigation interceptor (injected into every proxied page) ─────
+// ── Injected script: SW registration + panic + idle ──────────────────────────
 function buildInjectedScript(baseUrl) {
   const escaped = baseUrl.replace(/'/g, "\\'");
   return `<script>
 (function(){
-  var BASE='${escaped}', PR='/proxy?url=';
+  var BASE='${escaped}';
 
-  function toProxy(url){
-    if(!url)return url;
-    var s=url.toString();
-    if(s.startsWith('#')||s.startsWith('javascript:')||s.startsWith('mailto:')||s.startsWith('data:')||s.startsWith('blob:'))return s;
-    if(s.indexOf('/proxy?url=')!==-1)return s;
-    try{ var abs=new URL(s,BASE).href; if(abs.startsWith('http'))return PR+encodeURIComponent(abs); }catch(e){}
-    return s;
+  /* ── Register Service Worker (handles ALL external requests automatically) ── */
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js',{scope:'/'})
+      .then(function(reg){
+        // If a new SW is waiting, activate it immediately
+        if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+        reg.addEventListener('updatefound',function(){
+          var nw=reg.installing;
+          if(nw) nw.addEventListener('statechange',function(){
+            if(nw.state==='installed'&&reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+          });
+        });
+      })
+      .catch(function(){});
+    // When a new SW takes over, reload so the SW intercepts from the start
+    navigator.serviceWorker.addEventListener('controllerchange',function(){
+      window.location.reload();
+    });
   }
 
-  /* ── Intercept all <a> clicks (catches dynamically-added links) ── */
+  /* ── Fallback click interceptor (for first load before SW activates) ── */
+  function toProxy(url){
+    if(!url)return url;
+    var s=String(url);
+    if(!s||s.startsWith('#')||s.startsWith('javascript:')||s.startsWith('mailto:')||s.startsWith('data:')||s.startsWith('blob:'))return s;
+    if(s.indexOf('/proxy?url=')!==-1)return s;
+    try{
+      var abs=new URL(s,BASE).href;
+      if(abs.startsWith('http')&&new URL(abs).origin!==location.origin)
+        return '/proxy?url='+encodeURIComponent(abs);
+    }catch(e){}
+    return s;
+  }
   document.addEventListener('click',function(e){
     var el=e.target;
     while(el&&el.tagName!=='A')el=el.parentElement;
     if(!el)return;
     var href=el.getAttribute('href');
     if(!href||href.startsWith('#')||href.startsWith('javascript:')||href.startsWith('mailto:'))return;
-    if(el.href&&el.href.indexOf('/proxy?url=')!==-1)return;
+    var dest=toProxy(el.href||href);
+    if(dest===(el.href||href))return; // same origin, let browser handle
     e.preventDefault();
-    window.top.location.href=toProxy(el.href||href);
+    window.top.location.href=dest;
   },true);
-
-  /* ── Intercept form submissions ── */
   document.addEventListener('submit',function(e){
-    var f=e.target;
-    var action=f.getAttribute('action');
-    if(action===null)action=BASE; // no action attr = current page
-    if(!action||action==='')action=BASE;
-    if(action.indexOf('/proxy?url=')!==-1)return;
-    if(action.startsWith('javascript:'))return;
+    var f=e.target, action=f.getAttribute('action');
+    if(action===null||action==='')action=BASE;
+    if(action.indexOf('/proxy?url=')!==-1||action.startsWith('javascript:'))return;
     f.action=toProxy(action);
   },true);
-
-  /* ── Intercept history navigation (SPAs: React, Vue, etc.) ── */
-  function wrap(orig){
+  function wrapHistory(orig){
     return function(state,title,url){
-      if(url&&typeof url==='string'&&url.indexOf('/proxy?url=')===-1&&!url.startsWith('#'))
-        url=toProxy(url);
+      if(url&&typeof url==='string'){
+        var p=toProxy(url);
+        if(p!==url){url=p;}
+      }
       return orig.call(history,state,title,url);
     };
   }
-  try{ history.pushState=wrap(history.pushState); }catch(e){}
-  try{ history.replaceState=wrap(history.replaceState); }catch(e){}
+  try{history.pushState=wrapHistory(history.pushState);}catch(e){}
+  try{history.replaceState=wrapHistory(history.replaceState);}catch(e){}
 
   /* ── Panic & BroadcastChannel ── */
   try{
@@ -377,15 +463,8 @@ function buildInjectedScript(baseUrl) {
 function rewriteHtml(html, baseUrl, { noJs, noAd, school }) {
   const $ = cheerio.load(html, { decodeEntities: false });
 
-  // ── 1. Set <base> tag — safety net for anything we miss ──
-  // This makes missed relative URLs resolve to the real site
-  // rather than to /proxy with no ?url= parameter
+  // ── 1. Remove any existing <base> tag (it breaks our proxying) ──
   $('base').remove();
-  if ($('head').length) {
-    $('head').prepend(`<base href="${baseUrl}">`);
-  } else {
-    $('html').prepend(`<head><base href="${baseUrl}"></head>`);
-  }
 
   // ── 2. Strip SRI (integrity attributes break proxied resources) ──
   $('[integrity]').removeAttr('integrity').removeAttr('crossorigin');
@@ -580,16 +659,19 @@ app.get('/proxy', requireAuth, async (req, res) => {
     const agent = parsed.protocol === 'https:'
       ? new https.Agent({ rejectUnauthorized: false }) : new http.Agent();
 
+    // x-og-accept is sent by the Service Worker with the browser's original Accept header
+    // This ensures images get image/* Accept headers, scripts get */*, etc.
+    const swAccept = req.headers['x-og-accept'];
+    const acceptHeader = swAccept || 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8';
+
     const upstream = await fetch(targetUrl, {
       headers: {
         'User-Agent':      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-        'Accept':          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept':          acceptHeader,
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'identity',
         'Referer':         parsed.origin + '/',
-        'Sec-Fetch-Dest':  'document',
-        'Sec-Fetch-Mode':  'navigate',
-        'Sec-Fetch-Site':  'same-origin',
+        'Origin':          parsed.origin,
         ...(stored && { Cookie: stored }),
       },
       redirect: 'follow',
@@ -653,6 +735,60 @@ app.get('/proxy', requireAuth, async (req, res) => {
       </ul>
       <a href="/dashboard" target="_top">← Back to Dashboard</a>
       </body></html>`);
+  }
+});
+
+// ── POST proxy (for forms submitted through proxy) ───────────────────────────
+app.post('/proxy', requireAuth, async (req, res) => {
+  const targetUrl = req.query.url;
+  if (!targetUrl) return res.status(400).send('Missing ?url=');
+  let parsed; try { parsed = new URL(targetUrl); } catch { return res.status(400).send('Invalid URL'); }
+
+  const cookies = parseCookies(req);
+  const noJs    = req.query.nojs === '1';
+  const noAd    = cookies.og_adblock !== '0';
+  const school  = cookies.og_school  === '1';
+  const uid     = cookies.uid || 'default';
+  const data    = loadData();
+  const stored  = getDomainCookies(data, uid, parsed.hostname);
+
+  // Reconstruct form body
+  const bodyParts = [];
+  for (const [k, v] of Object.entries(req.body || {})) {
+    bodyParts.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
+  }
+  const formBody = bodyParts.join('&');
+
+  try {
+    const agent = parsed.protocol === 'https:'
+      ? new https.Agent({ rejectUnauthorized: false }) : new http.Agent();
+    const upstream = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'User-Agent':     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36',
+        'Accept':         'text/html,application/xhtml+xml,*/*;q=0.8',
+        'Accept-Language':'en-US,en;q=0.9',
+        'Accept-Encoding':'identity',
+        'Content-Type':   req.headers['content-type'] || 'application/x-www-form-urlencoded',
+        'Referer':        parsed.origin + '/',
+        'Origin':         parsed.origin,
+        ...(stored && { Cookie: stored }),
+      },
+      body: formBody || undefined,
+      redirect: 'follow',
+      agent,
+    });
+    const setCookies = (upstream.headers.raw?.() || {})['set-cookie'] || [];
+    if (setCookies.length) { storeDomainCookies(data, uid, parsed.hostname, setCookies); saveData(data); }
+    const ct = upstream.headers.get('content-type') || '';
+    const STRIP = new Set(['content-security-policy','content-security-policy-report-only','x-frame-options','strict-transport-security','content-encoding','set-cookie','x-content-type-options']);
+    for (const [k, v] of upstream.headers.entries()) if (!STRIP.has(k.toLowerCase())) try { res.setHeader(k, v); } catch {}
+    res.setHeader('content-type', ct);
+    const finalUrl = upstream.url || targetUrl;
+    if (ct.includes('text/html')) res.send(rewriteHtml(await upstream.text(), finalUrl, { noJs, noAd, school }));
+    else upstream.body.pipe(res);
+  } catch (err) {
+    res.status(502).send('Proxy POST error: ' + err.message);
   }
 });
 
