@@ -471,6 +471,19 @@ let bc; try{ bc=new BroadcastChannel('opengate'); bc.onmessage=e=>{ if(e.data===
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init(){
+  /* Pre-register SW from dashboard so it's active before ANY proxy page opens */
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(reg => {
+        if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if (nw) nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed') nw.postMessage({ type: 'SKIP_WAITING' });
+          });
+        });
+      }).catch(() => {});
+  }
   // Restore edit pw from sessionStorage
   editPwCached = sessionStorage.getItem('og_editpw') || null;
 
