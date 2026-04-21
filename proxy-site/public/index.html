@@ -232,6 +232,126 @@ html.decoy-mode #search::placeholder{content:'Thema suchen…'}
 
 /* ── Decoy peek notification ── */
 #decoy-peek-notice{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--accent2);color:var(--accent2);font-family:'Space Mono',monospace;font-size:11px;padding:7px 18px;border-radius:20px;z-index:9998;display:none;pointer-events:none}
+
+/* ═══════════════════════════════════════════════════════════
+   GOODNOTES DECOY OVERLAY
+   Covers the entire viewport when decoy mode is on.
+   Folders map 1-to-1 with real sites (same positions).
+═══════════════════════════════════════════════════════════ */
+#gn-overlay{
+  display:none;position:fixed;inset:0;z-index:9000;
+  background:#1c1c1e;color:#fff;
+  font-family:-apple-system,'SF Pro Display',BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  flex-direction:row;overflow:hidden;
+}
+#gn-overlay.visible{display:flex}
+
+/* Sidebar */
+#gn-sidebar{
+  width:232px;min-width:232px;background:#2c2c2e;
+  display:flex;flex-direction:column;padding:16px 0 24px;
+  border-right:1px solid #3a3a3c;overflow-y:auto;flex-shrink:0;
+}
+#gn-sidebar-title{
+  font-size:22px;font-weight:700;padding:12px 20px 18px;
+  letter-spacing:-.02em;cursor:pointer;user-select:none;
+}
+.gn-nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;
+  margin:1px 8px;border-radius:9px;cursor:pointer;font-size:15px;
+  color:#fff;transition:background .12s;user-select:none;
+}
+.gn-nav-item:hover{background:rgba(255,255,255,.07)}
+.gn-nav-item.gn-active{background:#2f5fcc}
+.gn-nav-item svg{width:20px;height:20px;flex-shrink:0;opacity:.85}
+.gn-divider{height:1px;background:#3a3a3c;margin:8px 12px}
+.gn-sec-label{
+  font-size:11px;font-weight:600;color:#8e8e93;
+  padding:4px 20px 6px;text-transform:uppercase;letter-spacing:.05em;
+}
+.gn-recent-item{
+  display:flex;align-items:center;gap:10px;padding:8px 12px;
+  margin:1px 8px;border-radius:9px;cursor:pointer;font-size:14px;
+  color:#8e8e93;transition:background .12s;
+}
+.gn-recent-item:hover{background:rgba(255,255,255,.07)}
+
+/* Main */
+#gn-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* Toolbar */
+#gn-toolbar{
+  display:flex;align-items:center;gap:10px;padding:14px 22px;
+  border-bottom:1px solid #3a3a3c;flex-shrink:0;
+}
+#gn-toolbar-title{font-size:20px;font-weight:600;flex:1;letter-spacing:-.01em}
+.gn-search{
+  display:flex;align-items:center;gap:6px;background:#3a3a3c;
+  border-radius:9px;padding:7px 12px;font-size:14px;color:#8e8e93;
+  min-width:160px;
+}
+.gn-search svg{width:14px;height:14px;flex-shrink:0}
+.gn-tb-btn{
+  display:flex;align-items:center;gap:5px;background:#3a3a3c;border:none;
+  color:#fff;border-radius:8px;padding:7px 13px;font-size:13.5px;
+  font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .12s;
+}
+.gn-tb-btn:hover{background:#48484a}
+.gn-tb-btn.blue{background:#2f5fcc}
+.gn-tb-btn.blue:hover{background:#3a6fe0}
+
+/* Grid */
+#gn-grid-area{
+  flex:1;overflow-y:auto;padding:22px 24px 40px;
+  scrollbar-width:thin;scrollbar-color:#48484a transparent;
+}
+#gn-grid-area::-webkit-scrollbar{width:5px}
+#gn-grid-area::-webkit-scrollbar-thumb{background:#48484a;border-radius:3px}
+.gn-grid-label{
+  font-size:12px;font-weight:500;color:#8e8e93;
+  margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #3a3a3c;
+}
+#gn-grid{
+  display:grid;
+  grid-template-columns:repeat(var(--gn-cols,4),1fr);
+  gap:28px 20px;
+}
+
+/* Folder */
+.gn-folder{
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.gn-folder:hover .gn-fbody{filter:brightness(1.1)}
+.gn-folder:active .gn-fbody{filter:brightness(.93)}
+.gn-fwrap{position:relative;width:132px;height:108px;flex-shrink:0}
+.gn-ftab{position:absolute;top:0;left:0;width:48%;height:17px;border-radius:6px 6px 0 0}
+.gn-fbody{
+  position:absolute;bottom:0;left:0;right:0;height:93px;
+  border-radius:8px 14px 14px 14px;transition:filter .12s;
+  box-shadow:0 2px 10px rgba(0,0,0,.4);
+}
+.gn-fstar{position:absolute;top:20px;right:9px;z-index:2;opacity:.55}
+.gn-fstar svg{width:18px;height:18px;fill:#fff;stroke:rgba(0,0,0,.15);stroke-width:.5}
+.gn-fname{
+  font-size:13.5px;font-weight:400;color:#fff;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;
+}
+.gn-fdate{font-size:11px;color:#8e8e93;text-align:center;margin-top:1px}
+
+/* Peek timer bar on overlay */
+#gn-peek-bar{
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:#2f5fcc;transform-origin:left;display:none;z-index:9001;
+}
+#gn-peek-notice{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  background:#2c2c2e;border:1px solid #3a3a3c;color:#8e8e93;
+  font-size:11px;padding:6px 16px;border-radius:20px;z-index:9002;
+  display:none;pointer-events:none;font-family:'SF Mono',Menlo,monospace;
+}
+
 </style>
 </head>
 <body>
@@ -389,7 +509,7 @@ html.decoy-mode #search::placeholder{content:'Thema suchen…'}
       <label class="switch"><input type="checkbox" id="adblock-toggle" onchange="setAdblock(this.checked)" checked><span class="slider-knob"></span></label>
     </div>
     <div class="toggle-row">
-      <div><span>🏫 Decoy mode (German school theme)</span><small>Dashboard looks like a revision site. Triple-click logo to peek.</small></div>
+      <div><span>📓 Decoy mode (GoodNotes-Design)</span><small>Dashboard und Decoy-Seite sehen wie GoodNotes aus. Logo 3× klicken zum Schauen.</small></div>
       <label class="switch"><input type="checkbox" id="decoy-toggle" onchange="setDecoyMode(this.checked)"><span class="slider-knob"></span></label>
     </div>
 
@@ -440,23 +560,25 @@ html.decoy-mode #search::placeholder{content:'Thema suchen…'}
 
 <script>
 // ── Constants ─────────────────────────────────────────────────────────────────
-const DECOY_SUBJECTS = [
-  {name:'Mathematik',   icon:'📐', tags:['Klasse 10'],  desc:'Algebra, Geometrie und Analysis für die 10. Klasse'},
-  {name:'Biologie',     icon:'🧬', tags:['Naturwiss.'], desc:'Zellen, Evolution und Ökosysteme — Abitur Vorbereitung'},
-  {name:'Geschichte',   icon:'📜', tags:['Geistes.'],   desc:'Weimarer Republik und Nationalsozialismus'},
-  {name:'Physik',       icon:'⚛️', tags:['Naturwiss.'], desc:'Mechanik, Elektrik, Optik und Quantenphysik'},
-  {name:'Chemie',       icon:'🧪', tags:['Naturwiss.'], desc:'Organische Chemie — Reaktionsgleichungen üben'},
-  {name:'Englisch',     icon:'🇬🇧', tags:['Sprachen'],  desc:'Advanced Grammar, Vocabulary und Literatur'},
-  {name:'Deutsch',      icon:'📝', tags:['Sprachen'],   desc:'Rechtschreibung, Aufsätze und Literaturanalyse'},
-  {name:'Erdkunde',     icon:'🌍', tags:['Geistes.'],   desc:'Klimazonen, Globalisierung und Wirtschaft'},
-  {name:'Kunst',        icon:'🎨', tags:['Kreativ'],    desc:'Zeichnen, Malerei und Kunstgeschichte'},
-  {name:'Musik',        icon:'🎵', tags:['Kreativ'],    desc:'Notenlehre, Instrumente und Musikgeschichte'},
-  {name:'Sport',        icon:'⚽', tags:['Sport'],      desc:'Ballsport, Leichtathletik und Fitness'},
-  {name:'Informatik',   icon:'💻', tags:['Naturwiss.'], desc:'Programmierung, Algorithmen und Datenbanken'},
-  {name:'Latein',       icon:'🏛️', tags:['Sprachen'],   desc:'Grammatik, Texte und Vokabeln aus der Antike'},
-  {name:'Philosophie',  icon:'🤔', tags:['Geistes.'],   desc:'Erkenntnistheorie, Ethik und Logik'},
-  {name:'Wirtschaft',   icon:'📊', tags:['Soziales'],   desc:'VWL, BWL und wirtschaftliche Grundlagen'},
+// GoodNotes folder data (decoy mode — maps 1-to-1 with real sites by index)
+const GN_FOLDERS = [
+  { name:'Musik',      body:'#c2b8ac', tab:'#cdc4b9', date:'07.10.2025, 12:31' },
+  { name:'Kunst',      body:'#c080d4', tab:'#c98ddb', date:'07.10.2025, 12:03' },
+  { name:'Mathe',      body:'#7ab2e6', tab:'#87bbea', date:'24.09.2025, 10:58' },
+  { name:'Informatik', body:'#a2a2a2', tab:'#aeaeae', date:'23.09.2025, 08:13' },
+  { name:'Biologie',   body:'#5cc85c', tab:'#68d068', date:'22.09.2025, 12:17' },
+  { name:'Ethik',      body:'#a882d4', tab:'#b38edb', date:'22.09.2025, 08:26' },
+  { name:'Englisch',   body:'#5cc85c', tab:'#68d068', date:'19.09.2025, 12:53' },
+  { name:'Physik',     body:'#f082aa', tab:'#f590b6', date:'19.09.2025, 10:26' },
+  { name:'Geschichte', body:'#e8a050', tab:'#ecab61', date:'18.09.2025, 14:22' },
+  { name:'Chemie',     body:'#6090e8', tab:'#6d9cec', date:'17.09.2025, 09:15' },
+  { name:'Deutsch',    body:'#e86060', tab:'#ec6d6d', date:'16.09.2025, 11:30' },
+  { name:'Sport',      body:'#50c8b4', tab:'#5dd3bf', date:'15.09.2025, 08:45' },
+  { name:'Latein',     body:'#c8a040', tab:'#d0ad54', date:'14.09.2025, 13:00' },
+  { name:'Philosophie',body:'#8080c8', tab:'#8e8ed4', date:'13.09.2025, 10:00' },
+  { name:'Wirtschaft', body:'#78b878', tab:'#85c285', date:'12.09.2025, 09:00' },
 ];
+const DECOY_SUBJECTS = GN_FOLDERS; // kept for any legacy refs
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let sites=[], hist=[], activeTag=null, searchQuery='', editingId=null;
@@ -566,15 +688,50 @@ function setDecoyMode(on){
 function applyDecoy(show){
   decoyShowing=show;
   document.documentElement.classList.toggle('decoy-mode',show);
-  // Update label spans that have data-real / data-decoy
+  const overlay=document.getElementById('gn-overlay');
+  if(show){
+    overlay.classList.add('visible');
+    renderGnOverlay();
+  } else {
+    overlay.classList.remove('visible');
+  }
+  // Update label spans
   document.querySelectorAll('[data-real][data-decoy]').forEach(el=>{
     el.textContent = show ? el.dataset.decoy : el.dataset.real;
   });
-  // Re-render sites with decoy/real content
   renderSites();
 }
+
+function renderGnOverlay(){
+  const f=getFiltered();
+  const g=document.getElementById('gn-grid');
+  const starSvg='<svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="white" stroke="rgba(0,0,0,.2)" stroke-width=".8"/></svg>';
+  // Match cols slider
+  document.getElementById('gn-grid').style.setProperty('--gn-cols', gridCols);
+  // Update recent from history
+  if(hist[0]) document.getElementById('gn-recent-1-name').textContent=hist[0].name||'—';
+  if(hist[1]) document.getElementById('gn-recent-2-name').textContent=hist[1].name||'—';
+  g.innerHTML=f.map((s,i)=>{
+    const fd=GN_FOLDERS[i%GN_FOLDERS.length];
+    const proxyUrl='/proxy?url='+encodeURIComponent(s.url)+(s.compat?'&nojs=1':'');
+    return `<div class="gn-folder" onclick="openGnFolder('${s.id}')">
+      <div class="gn-fwrap">
+        <div class="gn-ftab"  style="background:${fd.tab}"></div>
+        <div class="gn-fbody" style="background:${fd.body}"></div>
+        <div class="gn-fstar">${starSvg}</div>
+      </div>
+      <div class="gn-fname">${esc(fd.name)}</div>
+      <div class="gn-fdate">${fd.date}</div>
+    </div>`;
+  }).join('');
+}
+function openGnFolder(id){
+  const s=sites.find(x=>x.id===parseInt(id)); if(!s)return;
+  trackVisit(s);
+  window.open('/proxy?url='+encodeURIComponent(s.url)+(s.compat?'&nojs=1':''),'_blank');
+}
 function setupLogoClick(){
-  document.getElementById('logo').addEventListener('click',()=>{
+  function handleTriple(){
     const now=Date.now();
     logoClickTimes=logoClickTimes.filter(t=>now-t<1500);
     logoClickTimes.push(now);
@@ -582,32 +739,37 @@ function setupLogoClick(){
       logoClickTimes=[];
       clearTimeout(logoPeekTimeout);
       if(decoyShowing){
-        // Currently showing decoy → peek real for 10s
         applyDecoy(false);
         showPeekNotice('Echte Ansicht — kehrt in 10s zurück', 10000);
         logoPeekTimeout=setTimeout(()=>{ if(decoyModeEnabled)applyDecoy(true); clearPeekNotice(); }, 10000);
       } else {
-        // Currently showing real → peek decoy for 25s
         applyDecoy(true);
-        showPeekNotice(decoyModeEnabled?'Schulansicht — kehrt in 25s zurück':'Dekoy-Vorschau — 25s', 25000);
+        showPeekNotice(decoyModeEnabled?'GoodNotes-Ansicht — 25s':'Vorschau — 25s', 25000);
         logoPeekTimeout=setTimeout(()=>{ applyDecoy(false); clearPeekNotice(); }, 25000);
       }
     }
-  });
+  }
+  document.getElementById('logo').addEventListener('click', handleTriple);
+  // Also wire gn-sidebar-title (the "GoodNotes" text on the overlay)
+  document.getElementById('gn-sidebar-title').addEventListener('click', handleTriple);
 }
 function showPeekNotice(msg, ms){
-  const bar=document.getElementById('decoy-timer-bar');
-  const notice=document.getElementById('decoy-peek-notice');
-  notice.textContent=msg; notice.style.display='';
-  bar.style.display=''; bar.style.transition='none'; bar.style.transform='scaleX(1)';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    bar.style.transition=`transform ${ms/1000}s linear`;
-    bar.style.transform='scaleX(0)';
-  }));
+  ['decoy-timer-bar','gn-peek-bar'].forEach(id=>{
+    const bar=document.getElementById(id);
+    bar.style.display=''; bar.style.transition='none'; bar.style.transform='scaleX(1)';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      bar.style.transition='transform '+(ms/1000)+'s linear';
+      bar.style.transform='scaleX(0)';
+    }));
+  });
+  ['decoy-peek-notice','gn-peek-notice'].forEach(id=>{
+    const n=document.getElementById(id);
+    n.textContent=msg; n.style.display='';
+  });
 }
 function clearPeekNotice(){
-  document.getElementById('decoy-timer-bar').style.display='none';
-  document.getElementById('decoy-peek-notice').style.display='none';
+  ['decoy-timer-bar','gn-peek-bar'].forEach(id=>document.getElementById(id).style.display='none');
+  ['decoy-peek-notice','gn-peek-notice'].forEach(id=>document.getElementById(id).style.display='none');
 }
 
 // ── Idle timer ────────────────────────────────────────────────────────────────
@@ -653,7 +815,9 @@ function applyCols(n){
   gridCols=n;
   document.getElementById('cols-slider').value=n;
   document.getElementById('cols-val').textContent=n;
-  document.getElementById('grid').style.gridTemplateColumns=`repeat(${n},1fr)`;
+  document.getElementById('grid').style.gridTemplateColumns='repeat('+n+',1fr)';
+  const gng=document.getElementById('gn-grid');
+  if(gng) gng.style.gridTemplateColumns='repeat('+n+',1fr)';
 }
 function setCols(v){
   const n=parseInt(v);
@@ -1006,5 +1170,58 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 init();
 </script>
+
+<!-- ═══ Goodnotes Decoy Overlay ═══════════════════════════════════════════════ -->
+<div id="gn-overlay">
+  <div id="gn-peek-bar"></div>
+  <div id="gn-peek-notice"></div>
+  <aside id="gn-sidebar">
+    <div id="gn-sidebar-title" id="gn-logo-triple">GoodNotes</div>
+    <div class="gn-nav-item gn-active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7C3 5.9 3.9 5 5 5h5l2 2h7c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7z"/></svg>
+      <span>Dokumente</span>
+    </div>
+    <div class="gn-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+      <span>Favoriten</span>
+    </div>
+    <div class="gn-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="20" cy="5" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="20" cy="19" r="2"/><line x1="6" y1="12" x2="18" y2="5.5"/><line x1="6" y1="12" x2="18" y2="18.5"/></svg>
+      <span>Geteilt</span>
+    </div>
+    <div class="gn-divider"></div>
+    <div class="gn-sec-label">Zuletzt geöffnet</div>
+    <div class="gn-recent-item" id="gn-recent-1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:18px;height:18px;opacity:.6"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/></svg>
+      <span id="gn-recent-1-name">—</span>
+    </div>
+    <div class="gn-recent-item" id="gn-recent-2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:18px;height:18px;opacity:.6"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/></svg>
+      <span id="gn-recent-2-name">—</span>
+    </div>
+  </aside>
+  <div id="gn-main">
+    <div id="gn-toolbar">
+      <div id="gn-toolbar-title">Dokumente</div>
+      <div class="gn-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Suchen
+      </div>
+      <button class="gn-tb-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Ansicht
+      </button>
+      <button class="gn-tb-btn blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Neu
+      </button>
+    </div>
+    <div id="gn-grid-area">
+      <div class="gn-grid-label">Zuletzt geändert</div>
+      <div id="gn-grid"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
