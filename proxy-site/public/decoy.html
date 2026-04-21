@@ -1,164 +1,281 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StudyFlow — Revision Timer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#f5f5f0;color:#333;font-family:'Inter',sans-serif;padding:24px}
-    .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:16px;border-bottom:1px solid #e0e0d8}
-    .title{font-size:20px;font-weight:600;color:#2a2a2a}
-    .title span{color:#5b7fa6}
-    .subtitle{font-size:12px;color:#888;margin-top:2px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px}
-    @media(max-width:600px){.grid{grid-template-columns:1fr}}
-    .card{background:#fff;border:1px solid #e8e8e0;border-radius:10px;padding:20px}
-    .card h3{font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
-    .timer-display{font-size:56px;font-weight:600;color:#2a2a2a;text-align:center;padding:16px 0;letter-spacing:-.02em}
-    .timer-btns{display:flex;gap:8px;justify-content:center}
-    .btn{padding:9px 20px;border-radius:6px;border:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer}
-    .btn-primary{background:#5b7fa6;color:#fff}
-    .btn-ghost{background:#f0f0ea;color:#555}
-    .tabs{display:flex;gap:4px;margin-bottom:16px}
-    .tab{padding:6px 14px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:#888}
-    .tab.active{background:#eef2f8;color:#5b7fa6}
-    .subject-list{list-style:none}
-    .subject-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0ea;font-size:14px}
-    .subject-item:last-child{border:none}
-    .subject-dot{width:8px;height:8px;border-radius:50%}
-    .subject-prog{flex:1;height:4px;background:#f0f0ea;border-radius:2px;overflow:hidden}
-    .subject-prog-fill{height:100%;border-radius:2px}
-    textarea{width:100%;border:1px solid #e8e8e0;border-radius:6px;padding:12px;font-family:'Inter',sans-serif;font-size:13px;resize:none;outline:none;color:#333;line-height:1.6;background:#fafaf8}
-    textarea:focus{border-color:#5b7fa6}
-    .today-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0ea;font-size:14px}
-    .today-item:last-child{border:none}
-    .check{width:16px;height:16px;border-radius:3px;border:1.5px solid #ccc;flex-shrink:0;cursor:pointer}
-    .check.done{background:#5b7fa6;border-color:#5b7fa6}
-    .today-text{color:#444}
-    .today-text.done-text{text-decoration:line-through;color:#aaa}
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GoodNotes</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1e;--sidebar:#2c2c2e;--surface:#2c2c2e;--surface2:#3a3a3c;
+  --border:#3a3a3c;--selected:#2f5fcc;--text:#fff;--muted:#8e8e93;
+  --radius:12px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,'SF Pro Display',BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  -webkit-font-smoothing:antialiased}
+body{display:flex;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{width:232px;min-width:232px;background:var(--sidebar);display:flex;
+  flex-direction:column;padding:16px 0 24px;border-right:1px solid var(--border);overflow-y:auto}
+.sidebar-title{font-size:22px;font-weight:700;padding:12px 20px 18px;letter-spacing:-.02em}
+.sidebar-section{margin-bottom:6px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 12px;
+  margin:1px 8px;border-radius:9px;cursor:pointer;font-size:15px;color:var(--text);
+  transition:background .12s;user-select:none}
+.sidebar-item:hover{background:rgba(255,255,255,.07)}
+.sidebar-item.active{background:var(--selected)}
+.sidebar-item svg{width:20px;height:20px;flex-shrink:0;opacity:.85}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 12px}
+.sidebar-section-label{font-size:11px;font-weight:600;color:var(--muted);
+  padding:4px 20px 6px;text-transform:uppercase;letter-spacing:.05em}
+
+/* ── Main ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Toolbar ── */
+.toolbar{display:flex;align-items:center;gap:10px;padding:14px 22px;
+  border-bottom:1px solid var(--border);flex-shrink:0}
+.toolbar-title{font-size:20px;font-weight:600;flex:1;letter-spacing:-.01em}
+.toolbar-search{display:flex;align-items:center;gap:6px;background:var(--surface2);
+  border-radius:9px;padding:7px 12px;font-size:14px;color:var(--muted);cursor:text;
+  min-width:180px}
+.toolbar-search svg{width:14px;height:14px;flex-shrink:0}
+.tb-btn{display:flex;align-items:center;gap:5px;background:var(--surface2);border:none;
+  color:var(--text);border-radius:8px;padding:7px 13px;font-size:13.5px;
+  font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .12s}
+.tb-btn:hover{background:#48484a}
+.tb-btn-blue{background:var(--selected)}
+.tb-btn-blue:hover{background:#3a6fe0}
+
+/* ── Grid area ── */
+.grid-area{flex:1;overflow-y:auto;padding:24px 24px 40px;scrollbar-width:thin;
+  scrollbar-color:#48484a transparent}
+.grid-area::-webkit-scrollbar{width:5px}
+.grid-area::-webkit-scrollbar-thumb{background:#48484a;border-radius:3px}
+.grid-section-label{font-size:12px;font-weight:500;color:var(--muted);
+  margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(144px,1fr));gap:28px 20px}
+
+/* ── Folder ── */
+.folder{display:flex;flex-direction:column;align-items:center;gap:9px;
+  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.folder:hover .f-body{filter:brightness(1.1)}
+.folder:active .f-body{filter:brightness(.95)}
+.f-wrap{position:relative;width:132px;height:108px;flex-shrink:0}
+.f-tab{position:absolute;top:0;left:0;width:48%;height:17px;
+  border-radius:6px 6px 0 0;transition:filter .12s}
+.f-body{position:absolute;bottom:0;left:0;right:0;height:93px;
+  border-radius:8px 14px 14px 14px;transition:filter .12s;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.f-star{position:absolute;top:20px;right:9px;z-index:2;opacity:.55}
+.f-star svg{width:18px;height:18px;fill:#fff;stroke:rgba(0,0,0,.15);stroke-width:.5}
+.f-name{font-size:13.5px;font-weight:400;color:var(--text);text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:144px}
+.f-date{font-size:11px;color:var(--muted);text-align:center;margin-top:1px}
+
+/* ── Unlock modal ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  z-index:9999;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#1c1c1e;border:1px solid var(--border);border-radius:16px;
+  padding:32px 28px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal-og-tag{font-family:'SF Mono',Menlo,monospace;font-size:10px;color:#39ff14;
+  letter-spacing:.2em;text-transform:uppercase;margin-bottom:5px}
+.modal-og-title{font-size:24px;font-weight:800;color:#fff;margin-bottom:22px;
+  font-family:-apple-system,sans-serif}
+.modal-og-title span{color:#39ff14}
+.modal input[type=password]{width:100%;background:#111;border:1px solid var(--border);
+  color:#c8d8e8;font-size:14px;padding:11px 14px;border-radius:10px;
+  outline:none;font-family:inherit;margin-bottom:7px;transition:border-color .15s}
+.modal input:focus{border-color:#39ff14}
+.modal-err{color:#ff3b5c;font-size:12px;min-height:17px;margin-bottom:10px;
+  font-family:'SF Mono',Menlo,monospace}
+.modal-unlock{width:100%;background:#39ff14;color:#000;border:none;
+  border-radius:10px;padding:12px;font-size:13px;font-weight:700;font-family:inherit;
+  cursor:pointer;letter-spacing:.05em;text-transform:uppercase;transition:filter .15s}
+.modal-unlock:hover{filter:brightness(1.1)}
+.modal-cancel{width:100%;background:transparent;border:1px solid var(--border);
+  color:var(--muted);border-radius:10px;padding:10px;font-size:13px;font-family:inherit;
+  cursor:pointer;margin-top:8px;transition:border-color .15s}
+.modal-cancel:hover{border-color:var(--muted)}
+</style>
 </head>
 <body>
-<div class="header">
-  <div>
-    <div class="title">Study<span>Flow</span></div>
-    <div class="subtitle">Revision & Focus Timer</div>
+
+<aside class="sidebar">
+  <div class="sidebar-title">GoodNotes</div>
+  <div class="sidebar-section">
+    <div class="sidebar-item active" onclick="setNav(this,'Dokumente')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 7C3 5.9 3.9 5 5 5h5l2 2h7c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7z"/>
+      </svg>
+      <span>Dokumente</span>
+    </div>
+    <div class="sidebar-item" onclick="setNav(this,'Favoriten')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+      </svg>
+      <span>Favoriten</span>
+    </div>
+    <div class="sidebar-item" onclick="setNav(this,'Geteilt')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="20" cy="5" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="20" cy="19" r="2"/>
+        <line x1="6" y1="12" x2="18" y2="5.5"/><line x1="6" y1="12" x2="18" y2="18.5"/>
+      </svg>
+      <span>Geteilt</span>
+    </div>
   </div>
-  <div style="font-size:13px;color:#888" id="dateline"></div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Zuletzt geöffnet</div>
+    <div class="sidebar-item" onclick="">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="opacity:.6">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/>
+      </svg>
+      <span style="font-size:14px;color:var(--muted)">Mathe — Kapitel 4</span>
+    </div>
+    <div class="sidebar-item" onclick="">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="opacity:.6">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/>
+      </svg>
+      <span style="font-size:14px;color:var(--muted)">Biologie — Mitose</span>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="toolbar">
+    <div class="toolbar-title" id="toolbar-title">Dokumente</div>
+    <div class="toolbar-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      Suchen
+    </div>
+    <button class="tb-btn" onclick="">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      Ansicht
+    </button>
+    <button class="tb-btn" onclick="">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Importieren
+    </button>
+    <button class="tb-btn tb-btn-blue" onclick="">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Neu
+    </button>
+  </div>
+  <div class="grid-area">
+    <div class="grid-section-label" id="grid-label">Zuletzt geändert</div>
+    <div class="grid" id="folder-grid"></div>
+  </div>
 </div>
 
-<div class="grid">
-  <div class="card">
-    <h3>Pomodoro Timer</h3>
-    <div class="tabs">
-      <button class="tab active" onclick="setMode(this,25,'Focus')">Focus</button>
-      <button class="tab" onclick="setMode(this,5,'Short Break')">Short Break</button>
-      <button class="tab" onclick="setMode(this,15,'Long Break')">Long Break</button>
-    </div>
-    <div class="timer-display" id="timer">25:00</div>
-    <div class="timer-btns">
-      <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">Start</button>
-      <button class="btn btn-ghost" onclick="resetTimer()">Reset</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Today's Tasks</h3>
-    <div id="task-list">
-      <div class="today-item"><div class="check done" onclick="toggleCheck(this)"></div><span class="today-text done-text">Read Chapter 4 — Biology</span></div>
-      <div class="today-item"><div class="check" onclick="toggleCheck(this)"></div><span class="today-text">Complete maths worksheet</span></div>
-      <div class="today-item"><div class="check" onclick="toggleCheck(this)"></div><span class="today-text">Review history notes</span></div>
-      <div class="today-item"><div class="check" onclick="toggleCheck(this)"></div><span class="today-text">English essay — first draft</span></div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:14px">
-      <input id="newTask" style="flex:1;padding:8px 10px;border:1px solid #e0e0d8;border-radius:5px;font-family:'Inter',sans-serif;font-size:13px;outline:none" placeholder="Add task…" />
-      <button class="btn btn-primary" style="padding:8px 14px" onclick="addTask()">+</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Subjects</h3>
-    <ul class="subject-list">
-      <li class="subject-item"><div class="subject-dot" style="background:#5b7fa6"></div><span style="flex:1">Mathematics</span><div class="subject-prog"><div class="subject-prog-fill" style="width:72%;background:#5b7fa6"></div></div><span style="font-size:12px;color:#888">72%</span></li>
-      <li class="subject-item"><div class="subject-dot" style="background:#72a65b"></div><span style="flex:1">Biology</span><div class="subject-prog"><div class="subject-prog-fill" style="width:55%;background:#72a65b"></div></div><span style="font-size:12px;color:#888">55%</span></li>
-      <li class="subject-item"><div class="subject-dot" style="background:#a67c5b"></div><span style="flex:1">History</span><div class="subject-prog"><div class="subject-prog-fill" style="width:40%;background:#a67c5b"></div></div><span style="font-size:12px;color:#888">40%</span></li>
-      <li class="subject-item"><div class="subject-dot" style="background:#9b5ba6"></div><span style="flex:1">English</span><div class="subject-prog"><div class="subject-prog-fill" style="width:88%;background:#9b5ba6"></div></div><span style="font-size:12px;color:#888">88%</span></li>
-    </ul>
-  </div>
-
-  <div class="card">
-    <h3>Notes</h3>
-    <textarea rows="8" placeholder="Write your revision notes here…">Mitosis phases: Prophase → Metaphase → Anaphase → Telophase
-
-Remember: PMAT acronym
-
-Key formulas for quadratics:
-  x = (-b ± √(b²-4ac)) / 2a</textarea>
+<!-- Unlock modal -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <div class="modal-og-tag">// access gateway</div>
+    <div class="modal-og-title">OPEN<span>GATE</span></div>
+    <input type="password" id="pw-input" placeholder="Passwort…" autocomplete="off">
+    <div class="modal-err" id="pw-err"></div>
+    <button class="modal-unlock" onclick="tryUnlock()">Entsperren →</button>
+    <button class="modal-cancel" onclick="closeModal()">Abbrechen</button>
   </div>
 </div>
 
 <script>
-  document.getElementById('dateline').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  let secs=25*60,running=false,iv=null;
-  function setMode(el,mins,label){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');secs=mins*60;running=false;clearInterval(iv);document.getElementById('startBtn').textContent='Start';updateDisplay();}
-  function updateDisplay(){document.getElementById('timer').textContent=Math.floor(secs/60)+':'+(secs%60).toString().padStart(2,'0');}
-  function toggleTimer(){if(running){clearInterval(iv);running=false;document.getElementById('startBtn').textContent='Resume';}else{running=true;document.getElementById('startBtn').textContent='Pause';iv=setInterval(()=>{if(secs>0){secs--;updateDisplay();}else{clearInterval(iv);running=false;document.getElementById('startBtn').textContent='Start';}},1000);}}
-  function resetTimer(){clearInterval(iv);running=false;document.getElementById('startBtn').textContent='Start';const t=document.querySelector('.tab.active').textContent;secs=(t==='Focus'?25:t==='Short Break'?5:15)*60;updateDisplay();}
-  function toggleCheck(el){el.classList.toggle('done');const span=el.nextElementSibling;span.classList.toggle('done-text');}
-  function addTask(){const inp=document.getElementById('newTask');const txt=inp.value.trim();if(!txt)return;const div=document.createElement('div');div.className='today-item';div.innerHTML=`<div class="check" onclick="toggleCheck(this)"></div><span class="today-text">${txt}</span>`;document.getElementById('task-list').appendChild(div);inp.value='';}
-  document.getElementById('newTask').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+// ── Folder data ───────────────────────────────────────────────────────────────
+const FOLDERS = [
+  { name:'Musik',      body:'#c2b8ac', tab:'#cdc4b9', date:'07.10.2025, 12:31' },
+  { name:'Kunst',      body:'#c080d4', tab:'#c98ddb', date:'07.10.2025, 12:03' },
+  { name:'Mathe',      body:'#7ab2e6', tab:'#87bbea', date:'24.09.2025, 10:58' },
+  { name:'Informatik', body:'#a2a2a2', tab:'#aeaeae', date:'23.09.2025, 08:13' },
+  { name:'Biologie',   body:'#5cc85c', tab:'#68d068', date:'22.09.2025, 12:17' },
+  { name:'Ethik',      body:'#a882d4', tab:'#b38edb', date:'22.09.2025, 08:26' },
+  { name:'Englisch',   body:'#5cc85c', tab:'#68d068', date:'19.09.2025, 12:53' },
+  { name:'Physik',     body:'#f082aa', tab:'#f590b6', date:'19.09.2025, 10:26' },
+  { name:'Geschichte', body:'#e8a050', tab:'#ecab61', date:'18.09.2025, 14:22' },
+  { name:'Chemie',     body:'#6090e8', tab:'#6d9cec', date:'17.09.2025, 09:15' },
+  { name:'Deutsch',    body:'#e86060', tab:'#ec6d6d', date:'16.09.2025, 11:30' },
+  { name:'Sport',      body:'#50c8b4', tab:'#5dd3bf', date:'15.09.2025, 08:45' },
+];
+
+// Star SVG
+const STAR_SVG = `<svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="white" stroke="rgba(0,0,0,.2)" stroke-width=".8"/></svg>`;
+
+function renderFolders() {
+  const g = document.getElementById('folder-grid');
+  g.innerHTML = FOLDERS.map(f => `
+    <div class="folder" onclick="">
+      <div class="f-wrap">
+        <div class="f-tab"  style="background:${f.tab}"></div>
+        <div class="f-body" style="background:${f.body}"></div>
+        <div class="f-star">${STAR_SVG}</div>
+      </div>
+      <div class="f-name">${f.name}</div>
+      <div class="f-date">${f.date}</div>
+    </div>`).join('');
+}
+renderFolders();
+
+// ── Nav ───────────────────────────────────────────────────────────────────────
+function setNav(el, title) {
+  document.querySelectorAll('.sidebar-item').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('toolbar-title').textContent = title;
+  document.getElementById('grid-label').textContent =
+    title === 'Favoriten' ? 'Markiert' :
+    title === 'Geteilt'   ? 'Mit mir geteilt' : 'Zuletzt geändert';
+}
+
+// ── Secret unlock ─────────────────────────────────────────────────────────────
+// Triggers: type "open" anywhere, or Ctrl+Shift+G, or Alt+G
+let buf = '';
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey && e.shiftKey && (e.key==='g'||e.key==='G')) ||
+      (e.altKey  && (e.key==='g'||e.key==='G'))) {
+    e.preventDefault(); openModal();
+  }
+});
+document.addEventListener('keypress', e => {
+  if (document.getElementById('modal-bg').classList.contains('open')) return;
+  buf = (buf + e.key).slice(-4);
+  if (buf === 'open') openModal();
+});
+
+function openModal() {
+  document.getElementById('modal-bg').classList.add('open');
+  setTimeout(() => document.getElementById('pw-input').focus(), 60);
+}
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('open');
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-err').textContent = '';
+}
+async function tryUnlock() {
+  const pw = document.getElementById('pw-input').value;
+  const r  = await fetch('/api/login', { method:'POST',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pw}) });
+  if (r.ok) { window.location.href = '/dashboard'; }
+  else { document.getElementById('pw-err').textContent = '✕ Falsches Passwort'; }
+}
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter')  tryUnlock();
+  if (e.key === 'Escape') closeModal();
+});
+document.getElementById('modal-bg').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-bg')) closeModal();
+});
 </script>
 </body>
 </html>
-
-<!-- Secret re-open keybind: Ctrl+Shift+G -->
-<div id="reopen-modal" style="display:none;position:fixed;inset:0;background:#00000090;backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:#0e1419;border:1px solid #1e2d3d;border-radius:12px;padding:28px;max-width:340px;width:90%;font-family:'Space Mono',monospace">
-    <div style="font-size:10px;color:#39ff14;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px">// access gateway</div>
-    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:20px">OPEN<span style="color:#39ff14">GATE</span></div>
-    <input type="password" id="reopen-pw" placeholder="Password" style="width:100%;background:#080c10;border:1px solid #1e2d3d;color:#c8d8e8;font-family:'Space Mono',monospace;font-size:13px;padding:11px 14px;border-radius:6px;outline:none;margin-bottom:8px">
-    <div id="reopen-err" style="color:#ff3b5c;font-size:11px;min-height:16px;margin-bottom:10px"></div>
-    <button onclick="tryReopen()" style="width:100%;background:#39ff14;color:#000;border:none;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:11px;border-radius:6px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em">Unlock →</button>
-    <button onclick="closeReopen()" style="width:100%;background:transparent;border:1px solid #1e2d3d;color:#4a6070;font-family:'Space Mono',monospace;font-size:12px;padding:9px;border-radius:6px;cursor:pointer;margin-top:8px">Cancel</button>
-  </div>
-</div>
-
-<script>
-// Ctrl+Shift+G (or just hold G for 1s) shows the password prompt
-document.addEventListener('keydown', function(e) {
-  if((e.ctrlKey && e.shiftKey && (e.key==='g'||e.key==='G')) ||
-     (e.altKey && (e.key==='g'||e.key==='G'))) {
-    e.preventDefault();
-    showReopen();
-  }
-});
-
-// Also: type the word "open" anywhere on the page (invisible)
-let typeBuf='';
-document.addEventListener('keypress', function(e) {
-  typeBuf=(typeBuf+e.key).slice(-4);
-  if(typeBuf==='open') showReopen();
-});
-
-function showReopen(){
-  const m=document.getElementById('reopen-modal');
-  m.style.display='flex';
-  setTimeout(()=>document.getElementById('reopen-pw').focus(),50);
-}
-function closeReopen(){
-  document.getElementById('reopen-modal').style.display='none';
-  document.getElementById('reopen-pw').value='';
-  document.getElementById('reopen-err').textContent='';
-}
-async function tryReopen(){
-  const pw=document.getElementById('reopen-pw').value;
-  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
-  if(r.ok){ window.location.href='/dashboard'; }
-  else { document.getElementById('reopen-err').textContent='✕ Wrong password'; }
-}
-document.getElementById('reopen-pw').addEventListener('keydown',function(e){
-  if(e.key==='Enter') tryReopen();
-  if(e.key==='Escape') closeReopen();
-});
-</script>
